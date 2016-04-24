@@ -3,11 +3,18 @@ var express = require('express');
 var webpack = require('webpack');
 var webpackDevMiddleware = require('webpack-dev-middleware');
 var webpackHotMiddleware = require("webpack-hot-middleware");
+var http = require('http');
+var socketIO = require('socket.io');
 var config = require('./webpack.config.js');
+var socketBridge = require('./socketBridge.js');
 
 var isDevelopment = process.env.NODE_ENV == "development";
 var port = isDevelopment ? 3000 : process.env.PORT;
 var app = express();
+var server = http.Server(app);
+var io = socketIO(server);
+
+io.use(socketBridge);
 
 if (isDevelopment) {
   const compiler = webpack(config);
@@ -36,7 +43,7 @@ if (isDevelopment) {
   });
 }
 
-app.listen(port, '0.0.0.0', function onStart(err) {
+server.listen(port, '0.0.0.0', function onStart(err) {
   if (err) {
     console.error(err);
     process.exit(1);
