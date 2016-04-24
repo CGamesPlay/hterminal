@@ -8,15 +8,15 @@ module.exports = function middleware(socket, next) {
   var encoding = 'utf8';
 
   term.on('data', function(data) {
-    socket.send({ output: data.toString(encoding) });
+    socket.emit('output', data.toString(encoding));
   });
 
-  term.on('close', function(code, signal) {
-    socket.send({ terminate: code, signal: signal });
+  term.on('exit', function(code, signal) {
+    socket.emit('exit', code, signal);
   });
 
-  socket.on('message', function(message) {
-    term.write(message + "\n", encoding);
+  socket.on('data', function(message) {
+    term.write(message + "\r", encoding);
   });
 
   socket.on('disconnect', function() {

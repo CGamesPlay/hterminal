@@ -19,6 +19,7 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
     new HtmlWebpackPlugin(),
+    //new ExtractTextPlugin('styles.css'),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development')
     })
@@ -27,16 +28,14 @@ module.exports = {
     loaders: [{
       test: /\.js$/,
       exclude: /node_modules/,
-      loader: 'babel',
-      query: {
-        "presets": ["react", "es2015"]
-      }
+      loader: 'react-hot!babel?{"presets":["react","es2015"]}',
     }, {
       test: /\.json$/,
       loader: 'json'
     }, {
       test: /\.css$/,
-      loader: ExtractTextPlugin.extract('style-loader', 'css-loader'),
+      //loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules'),
+      loaders: [ 'style-loader', 'css-loader?modules' ],
     }]
   }
 };

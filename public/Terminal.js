@@ -1,18 +1,17 @@
 import React from 'react';
-import io from 'socket.io-client';
+import Driver from './Driver';
+import CSS from './Terminal.css';
 
 const ENTER_KEY_CODE = 13;
-
-console.log("Module evaluated");
 
 export class Cell extends React.Component {
   render() {
     return (
       <div>
+        <div className={CSS.output}>{this.props.output}</div>
         <input
           ref="command"
           onKeyDown={this.handleKeyDown.bind(this)} />
-        <div>{this.props.output}</div>
       </div>
     );
   }
@@ -23,6 +22,7 @@ export class Cell extends React.Component {
       if (this.props.onEvaluate) {
         this.props.onEvaluate(this.refs.command.value);
       }
+      this.refs.command.value = "";
     }
   }
 }
@@ -34,9 +34,9 @@ export default class Terminal extends React.Component {
   }
 
   componentDidMount() {
-    this.socket = io('http://localhost:3000');
-    this.socket.on('message', (data) => {
-      console.log("message:", data);
+    this.driver = new Driver();
+    this.driver.on('output', (cells) => {
+      this.setState({ output: cells[cells.length - 1] });
     });
   }
 
@@ -47,6 +47,6 @@ export default class Terminal extends React.Component {
   }
 
   handleEvaluate(command) {
-    this.socket.send(command);
+    this.driver.send(command);
   }
 }
