@@ -1,7 +1,7 @@
-var pty = require('pty.js');
+var Terminal = require('./Terminal');
 
 module.exports = function middleware(socket, next) {
-  var term = pty.spawn('sh', [], {
+  var term = new Terminal('sh', [], {
     cwd: process.env.HOME,
     env: process.env,
   });
@@ -16,7 +16,7 @@ module.exports = function middleware(socket, next) {
   });
 
   socket.on('data', function(message) {
-    term.write(message + "\r", encoding);
+    term.write(message + "\r");
   });
 
   socket.on('disconnect', function() {
