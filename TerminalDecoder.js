@@ -1,15 +1,9 @@
-var Transform = require('stream').Transform;
-var StringDecoder = require('string_decoder').StringDecoder;
-var util = require('util');
-
 function TerminalDecoder() {
-  this.utf8Decoder = new StringDecoder('utf8');
   this.pending = null;
 }
 
 TerminalDecoder.prototype = {
-  write: function(raw_buffer, cb) {
-    var buffer = this.utf8Decoder.write(raw_buffer);
+  write: function(buffer, cb) {
     if (this.pending) {
       buffer = this.pending + buffer;
       this.pending = null;
@@ -19,7 +13,7 @@ TerminalDecoder.prototype = {
       var escapeStart = buffer.indexOf(TerminalDecoder.ESC);
       if (escapeStart == -1) {
         // No escape in this chunk, emit the entire thing
-        cb('output', this.utf8Decoder.write(buffer));
+        cb('output', buffer);
         break;
 
       } else {
@@ -47,16 +41,11 @@ TerminalDecoder.prototype = {
   },
 
   end: function() {
-    var res;
     if (this.pending) {
-      res = this.pending + this.utf8Decoder.end();
+      return [ [ 'output', this.pending ] ];
     } else {
-      res = this.utf8Decoder.end();
+      return [];
     }
-    if (res && res.length) {
-      return [ [ 'output', res ] ];
-    }
-    return [];
   },
 
   // Process the escape sequence at the start of buffer and return the number of
@@ -168,36 +157,5 @@ TerminalDecoder.prototype = {
 
 TerminalDecoder.ESC = String.fromCharCode(0x1b);
 TerminalDecoder.CSI = TerminalDecoder.ESC + "[";
-
-
-function Stream(options) {
-  if (!(this instanceof Stream)) {
-    return new Stream(options);
-  }
-
-  options = options || {};
-  options.readableObjectMode = true;
-
-  Transform.call(this, options);
-  this._decoder = new TerminalDecoder();
-}
-util.inherits(Stream, Transform);
-TerminalDecoder.Stream = Stream;
-
-Stream.prototype._transform = function(chunk, encoding, done) {
-  var self = this;
-  this._decoder.write(chunk, function() {
-    self.push(Array.prototype.slice.call(arguments));
-  });
-  done();
-};
-
-Stream.prototype._flush = function(done) {
-  var self = this;
-  this._decoder.end().forEach(function(command) {
-    self.push(command);
-  });
-  done();
-};
 
 module.exports = TerminalDecoder;

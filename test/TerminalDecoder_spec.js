@@ -24,16 +24,6 @@ describe('TerminalDecoder', function() {
     expect(result).to.deep.equal([ [ 'output', 'abc' ] ]);
   });
 
-  it('processes utf8 characters between chunks', function() {
-    var result = processChunks([ new Buffer([0xc2]), new Buffer([0xa2]) ]);
-    expect(result).to.deep.equal([ [ 'output', '\u00a2' ] ]);
-  });
-
-  it('returns unfinished utf8 chatacters at end', function() {
-    var result = processChunks([ new Buffer([0xc2]) ]);
-    expect(result).to.deep.equal([ [ 'output', '\ufffd' ] ]);
-  });
-
   it('processes simple escape sequences', function() {
     var result = processChunks([ TerminalDecoder.ESC + "c" ]);
     expect(result).to.deep.equal([ [ 'reset' ] ]);
@@ -49,34 +39,10 @@ describe('TerminalDecoder', function() {
     expect(result).to.deep.equal([ [ 'output', '\x1b' ] ]);
   });
 
-  it('returns both unfinished bytes and escape sequences at end', function() {
-    var result = processChunks([ TerminalDecoder.ESC, new Buffer([0xc2]) ]);
-    expect(result).to.deep.equal([ [ 'output', '\x1b\ufffd' ] ]);
-  });
-
   it('processes character attributes', function() {
     var result = process(TerminalDecoder.CSI + "0m");
     expect(result).to.deep.equal([ [ 'style', { } ] ]);
     result = process(TerminalDecoder.CSI + "1;32m");
     expect(result).to.deep.equal([ [ 'style', { bold: true, foreground: 'green' } ] ]);
-  });
-
-  describe('.Stream', function() {
-    it('works', function(done) {
-      var s = new TerminalDecoder.Stream();
-      var output = [];
-      s.on('data', function(command) { output.push(command); });
-      s.on('end', function() {
-        expect(output).to.deep.equal([
-          [ 'output', '\u00a2' ],
-          [ 'output', '\x1b' ],
-        ]);
-        done();
-      });
-      s.write(new Buffer([0xc2]));
-      s.write(new Buffer([0xa2]));
-      s.write(new Buffer([0x1b]));
-      s.end();
-    });
   });
 });
