@@ -15,8 +15,6 @@ function Terminal(command, args, options) {
 
   this.decoder = new TerminalDecoder();
 
-  termios.setattr(this.term.pty.master_fd, { lflag: { ECHO: false } })
-
   return this;
 };
 

@@ -72,6 +72,9 @@ TerminalDecoder.prototype = {
     } else if (buffer[1] == '[') {
       var ret = this.readCSI(buffer.slice(2), cb);
       return ret <= 0 ? ret : ret + 2;
+    } else if (buffer[1] == '>' || buffer[1] == '=') {
+      // Application keypad mode, ignored
+      return 2;
     } else {
       return 0;
     }
@@ -80,9 +83,9 @@ TerminalDecoder.prototype = {
   readCSI: function(buffer, cb) {
     if (buffer.length < 1) {
       return -1;
-    } else if (m = /^(\d+;?)*([m])/.exec(buffer)) {
-      if (m[2] == "m") {
-        var codes = m[0].split(';').map(function(x) { return parseInt(x, 10); });
+    } else if (m = /^([?]?)((\d+;?)*)([JKhlm])/.exec(buffer)) {
+      var codes = (m[2] || "").split(';').map(function(x) { return parseInt(x, 10); });
+      if (m[1] == "" && m[4] == "m") {
         var style = {};
         codes.forEach(function(c) {
           switch (c) {
@@ -152,6 +155,8 @@ TerminalDecoder.prototype = {
             */
         });
         cb('style', style);
+      } else {
+        cb('csi', m[1], codes, m[4]);
       }
       return m[0].length;
     } else {

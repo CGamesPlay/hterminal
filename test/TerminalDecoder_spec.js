@@ -54,7 +54,7 @@ describe('TerminalDecoder', function() {
     expect(result).to.deep.equal([ [ 'output', '\x1b\ufffd' ] ]);
   });
 
-  it.only('processes character attributes', function() {
+  it('processes character attributes', function() {
     var result = process(TerminalDecoder.CSI + "0m");
     expect(result).to.deep.equal([ [ 'style', { } ] ]);
     result = process(TerminalDecoder.CSI + "1;32m");

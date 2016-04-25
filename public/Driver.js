@@ -13,12 +13,11 @@ export default class Driver extends EventEmitter {
   }
 
   send(data) {
-    this.handleOutput(data);
     this.socket.emit('data', data);
   }
 
   handleOutput(output) {
-    let new_cell = (this.cells[this.cells.length - 1] || "") + output;
+    let new_cell = (this.cells[this.cells.length - 1] || "") + output.replace(/\x1b/, '^[');
     this.cells = this.cells.slice(0, -1).concat(new_cell);
     this.emit('output', this.cells);
   }
