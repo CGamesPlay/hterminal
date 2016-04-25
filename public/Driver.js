@@ -10,12 +10,18 @@ export default class Driver extends EventEmitter {
     this.cells = [];
     this.decoder = new TerminalDecoder();
 
+    this.socket.on('connect', this.handleConnect.bind(this));
     this.socket.on('output', this.decodeOutput.bind(this));
     this.socket.on('exit', this.handleExit.bind(this));
   }
 
   send(data) {
     this.socket.emit('data', data);
+  }
+
+  handleConnect() {
+    this.cells = [];
+    this.decoder = new TerminalDecoder();
   }
 
   decodeOutput(output) {

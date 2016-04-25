@@ -1,10 +1,14 @@
+var path = require('path');
 var child_pty = require('child_pty');
 var termios = require('termios');
 
 module.exports = function middleware(socket, next) {
-  var shell = child_pty.spawn('login', [ '-f', process.env["USER"] ], {
+  var shell = child_pty.spawn('login', [ '-p', '-f', process.env["USER"] ], {
     cwd: process.env.HOME,
-    env: process.env,
+    env: {
+      TERM: "xterm-256color-html",
+      TERMINFO: path.join(__dirname, "terminfo"),
+    },
   });
 
   shell.pty.setEncoding('utf8');
