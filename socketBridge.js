@@ -1,26 +1,32 @@
-var Terminal = require('./Terminal');
+var child_pty = require('child_pty');
+var termios = require('termios');
 
 module.exports = function middleware(socket, next) {
-  var term = new Terminal('sh', [], {
+  var shell = child_pty.spawn('sh', [], {
     cwd: process.env.HOME,
     env: process.env,
   });
-  var encoding = 'utf8';
 
-  term.on('data', function(data) {
-    socket.emit('output', data.toString(encoding));
+  shell.pty.setEncoding('utf8');
+  shell.pty.on('data', function(data) {
+    socket.emit('output', data);
   });
 
-  term.on('exit', function(code, signal) {
+  shell.on('exit', function(code, signal) {
     socket.emit('exit', code, signal);
+    shell = null;
   });
 
   socket.on('data', function(message) {
-    term.write(message);
+    if (shell) {
+      shell.pty.write(message);
+    }
   });
 
   socket.on('disconnect', function() {
-    term.destroy();
+    if (shell) {
+      shell.kill('SIGHUP');
+    }
   });
 
   next();

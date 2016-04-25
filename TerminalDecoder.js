@@ -70,6 +70,7 @@ TerminalDecoder.prototype = {
   },
 
   readCSI: function(buffer, cb) {
+    var m;
     if (buffer.length < 1) {
       return -1;
     } else if (m = /^([?]?)((\d+;?)*)([JKhlm])/.exec(buffer)) {
