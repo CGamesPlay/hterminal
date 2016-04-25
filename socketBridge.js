@@ -2,7 +2,7 @@ var child_pty = require('child_pty');
 var termios = require('termios');
 
 module.exports = function middleware(socket, next) {
-  var shell = child_pty.spawn('sh', [], {
+  var shell = child_pty.spawn('login', [ '-f', process.env["USER"] ], {
     cwd: process.env.HOME,
     env: process.env,
   });

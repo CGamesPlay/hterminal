@@ -61,9 +61,19 @@ TerminalDecoder.prototype = {
     } else if (buffer[1] == '[') {
       var ret = this.readCSI(buffer.slice(2), cb);
       return ret <= 0 ? ret : ret + 2;
+    } else if (buffer[1] == ']') {
+      var ret = this.readOSC(buffer.slice(2), cb);
+      return ret <= 0 ? ret : ret + 2;
     } else if (buffer[1] == '>' || buffer[1] == '=') {
       // Application keypad mode, ignored
       return 2;
+    } else if (buffer[1] == '(') {
+      if (buffer.length == 2) {
+        return -1;
+      } else {
+        // Set charset, 3 chars long
+        return 3;
+      }
     } else {
       return 0;
     }
@@ -71,10 +81,14 @@ TerminalDecoder.prototype = {
 
   readCSI: function(buffer, cb) {
     var m;
-    if (buffer.length < 1) {
+    if (/^([?>]?)(\d;)*$/.test(buffer)) {
+      // This is a valid prefix with no terminator
       return -1;
-    } else if (m = /^([?]?)((\d+;?)*)([JKhlm])/.exec(buffer)) {
-      var codes = (m[2] || "").split(';').map(function(x) { return parseInt(x, 10); });
+    } else if (m = /^([?>]?)((\d+;?)*)([A-Za-z])/.exec(buffer)) {
+      var codes = [];
+      if (m[2]) {
+        codes = m[2].split(';').map(function(x) { return parseInt(x, 10); });
+      }
       if (m[1] == "" && m[4] == "m") {
         var style = {};
         codes.forEach(function(c) {
@@ -150,7 +164,23 @@ TerminalDecoder.prototype = {
       }
       return m[0].length;
     } else {
-      // No supported match
+      // Invalid CSI
+      return 0;
+    }
+  },
+
+  readOSC: function(buffer, cb) {
+    var m;
+    if (buffer.indexOf("\x07") == -1 && buffer.indexOf("\x1b\\") == -1 &&
+        new RegExp("^[^" + TerminalDecoder.NON_PRINTABLE + "]*$").test(buffer)) {
+      // This is a valid prefix of an OSC, but it doesn't have the terminator.
+      return -1;
+    } else if (m = new RegExp("^(\\d+);([^" + TerminalDecoder.NON_PRINTABLE + "]*)(\x07|\x1b\\\\)").exec(buffer)) {
+      cb('osc', parseInt(m[1], 10), m[2]);
+      return m[0].length;
+    } else {
+      // Invalid OSC
+      console.error("Invalid OSC:", buffer);
       return 0;
     }
   }
@@ -158,5 +188,7 @@ TerminalDecoder.prototype = {
 
 TerminalDecoder.ESC = String.fromCharCode(0x1b);
 TerminalDecoder.CSI = TerminalDecoder.ESC + "[";
+TerminalDecoder.NON_PRINTABLE =
+  "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0b\x0c\x0e\x0e\x0f" + "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f"
 
 module.exports = TerminalDecoder;

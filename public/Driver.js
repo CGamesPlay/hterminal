@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 import EventEmitter from 'events';
-import TerminalDecoder from '../TerminalDecoder';
+import TerminalDecoder from './TerminalDecoder';
 
 export default class Driver extends EventEmitter {
   constructor() {
@@ -36,8 +36,26 @@ export default class Driver extends EventEmitter {
   }
 
   handleOutput(output) {
-    let new_cell = (this.cells[this.cells.length - 1] || "") + output.replace(/\x1b/, '^[');
+    let new_cell = (this.cells[this.cells.length - 1] || "") + this.formatString(output);
     this.cells = this.cells.slice(0, -1).concat(new_cell);
     this.emit('output', this.cells);
   }
+
+  formatString(string) {
+    // Note:
+    //   NL -> cursor to column 0, down one line
+    //   CR -> cursor to colum 0
+    //   FF -> down one line
+    return string
+      .replace(/\x0c/g, '\n')
+      .replace(/\x07/g, '\uD83D\uDD14')
+      .replace(/\x0d/g, '')
+      .replace(new RegExp("[" + TerminalDecoder.NON_PRINTABLE + "]", "g"), (m) => {
+        return "^" + String.fromCharCode(64 + m.charCodeAt(0));
+      });
+  }
+}
+
+if (module.hot) {
+  module.hot.decline();
 }
