@@ -13,6 +13,7 @@ export default class Driver extends EventEmitter {
   }
 
   send(data) {
+    this.handleOutput(data);
     this.socket.emit('data', data);
   }
 

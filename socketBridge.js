@@ -16,7 +16,7 @@ module.exports = function middleware(socket, next) {
   });
 
   socket.on('data', function(message) {
-    term.write(message + "\r");
+    term.write(message);
   });
 
   socket.on('disconnect', function() {

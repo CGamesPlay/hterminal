@@ -47,6 +47,6 @@ export default class Terminal extends React.Component {
   }
 
   handleEvaluate(command) {
-    this.driver.send(command);
+    this.driver.send(command + "\n");
   }
 }
