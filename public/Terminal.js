@@ -133,6 +133,8 @@ export default class Terminal extends React.Component {
       this.driver.send(command + "\r");
       this.refs.input.select();
       this.scrollToBottom();
+    } else if (e.key == "Tab") {
+      e.preventDefault();
     }
   }
 

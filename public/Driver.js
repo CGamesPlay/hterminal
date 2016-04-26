@@ -40,6 +40,9 @@ export default class Driver extends EventEmitter {
       this.htmlInsertNewCell(arguments[1]);
     } else if (command == 'set-title') {
       document.title = arguments[1];
+    } else if (command == 'report-status') {
+      // Always reply with CSI 0 n
+      this.send(TerminalDecoder.CSI + "0n");
     } else if (command != 'style') {
       console.log.apply(console, arguments);
     }

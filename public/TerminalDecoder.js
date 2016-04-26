@@ -159,6 +159,9 @@ TerminalDecoder.prototype = {
             */
         });
         cb('style', style);
+      } else if (m[1] == "" && m[4] == "n" && codes[0] == 5) {
+        // Device status report
+        cb('report-status');
       } else {
         cb('csi', m[1], codes, m[4]);
       }
@@ -194,17 +197,18 @@ TerminalDecoder.prototype = {
 
   handleHTMLCommand: function(command, cb) {
     var dataStart = command.indexOf(';') + 1;
-    var opcode = parseInt(command.slice(0, dataStart - 1), 10);
-    if (opcode == 0) {
+    var opcode = command.slice(0, dataStart - 1);
+    if (opcode == '0') {
       cb('insert-html', command.slice(dataStart));
     } else {
-      cp('osc', 1866, command);
+      cb('osc', 1866, command);
     }
   },
 };
 
 TerminalDecoder.ESC = String.fromCharCode(0x1b);
 TerminalDecoder.CSI = TerminalDecoder.ESC + "[";
+TerminalDecoder.OSC = TerminalDecoder.ESC + "]";
 TerminalDecoder.NON_PRINTABLE =
   "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0b\x0c\x0e\x0e\x0f" + "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f"
 
