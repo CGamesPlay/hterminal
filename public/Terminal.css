@@ -1,4 +1,9 @@
-.output {
+.textOutput {
   font-family: 'Anonymous Pro', monospace;
   white-space: pre-wrap;
+}
+
+.htmlOutput iframe {
+  width: 100%;
+  border: none;
 }

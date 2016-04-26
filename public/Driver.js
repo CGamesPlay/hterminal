@@ -36,14 +36,33 @@ export default class Driver extends EventEmitter {
   handleCommand(command) {
     if (command == 'output') {
       this.handleOutput(arguments[1]);
+    } else if (command == 'insert-html') {
+      this.htmlInsertNewCell(arguments[1]);
     } else {
       console.log.apply(console, arguments);
     }
   }
 
   handleOutput(output) {
-    let new_cell = (this.cells[this.cells.length - 1] || "") + this.formatString(output);
-    this.cells = this.cells.slice(0, -1).concat(new_cell);
+    let current_cell = this.cells[this.cells.length - 1];
+    if (current_cell && current_cell.type == "text") {
+      let new_cell = {
+        type: "text",
+        content: current_cell["content"] + this.formatString(output),
+      };
+      this.cells = this.cells.slice(0, -1).concat(new_cell);
+    } else {
+      let new_cell = {
+        type: "text",
+        content: this.formatString(output),
+      };
+      this.cells = this.cells.concat(new_cell);
+    }
+    this.emit('output', this.cells);
+  }
+
+  htmlInsertNewCell(html) {
+    this.cells.push({ type: "html", content: html });
     this.emit('output', this.cells);
   }
 

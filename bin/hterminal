@@ -1,0 +1,39 @@
+#!/bin/bash
+
+CSI=$(echo -en "\x1b[")
+OSC=$(echo -en "\x1b]")
+COMMAND_END=$(echo -en "\x07")
+INSERT_HTML="${OSC}1866;0;"
+
+assert_hterminal() {
+  if [ ! -t 1 ]; then
+    echo "stdout is not a terminal" >&2
+    exit 1
+  fi
+  if [ "$TERM" != "xterm-256color-html" ]; then
+    echo "Not running in HTerminal (\$TERM is ${TERM})" >&2
+    exit 1
+  fi
+}
+
+htmlspecialchars() {
+  sed 's/&/\&amp;/g;s/"/\&quot;/g;s/'\''/\&#39;/g;s/</\&lt;/g;s/>/\&gt;/g'
+}
+
+assert_hterminal
+
+command=$1
+shift
+case $command in
+  "echo")
+    echo "${INSERT_HTML}""$@""${COMMAND_END}"
+    ;;
+  "cat")
+    echo -n "${INSERT_HTML}<iframe srcdoc=\""
+    cat "$@" | htmlspecialchars
+    echo "\"></iframe>${COMMAND_END}"
+    ;;
+  *)
+    echo "Invalid command: $command" >&2
+    exit 1
+esac

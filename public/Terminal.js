@@ -6,23 +6,17 @@ const ENTER_KEY_CODE = 13;
 
 export class Cell extends React.Component {
   render() {
-    return (
-      <div>
-        <div className={CSS.output}>{this.props.output}</div>
-        <input
-          ref="command"
-          onKeyDown={this.handleKeyDown.bind(this)} />
-      </div>
-    );
-  }
+    let cell = this.props.cell;
 
-  handleKeyDown(e) {
-    if (e.keyCode == ENTER_KEY_CODE) {
-      e.preventDefault();
-      if (this.props.onEvaluate) {
-        this.props.onEvaluate(this.refs.command.value);
-      }
-      this.refs.command.value = "";
+    if (cell.type == "html") {
+      let payload = { __html: cell.content };
+      return (
+        <div className={CSS.htmlOutput} dangerouslySetInnerHTML={payload} />
+      );
+    } else {
+      return (
+        <div className={CSS.textOutput}>{cell.content}</div>
+      );
     }
   }
 }
@@ -30,23 +24,34 @@ export class Cell extends React.Component {
 export default class Terminal extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { output: null };
+    this.driver = new Driver();
   }
 
   componentDidMount() {
-    this.driver = new Driver();
-    this.driver.on('output', (cells) => {
-      this.setState({ output: cells[cells.length - 1] });
-    });
+    this.driver.on('output', (cells) => this.forceUpdate());
   }
 
   render() {
+    let cells = this.driver.cells.map((c, i) =>
+      <Cell
+        key={i}
+        cell={c}
+        mutable={i == this.driver.cells.length - 1} />
+    );
     return (
-      <Cell output={this.state.output} onEvaluate={this.handleEvaluate.bind(this)} />
+      <div>
+        {cells}
+        <input ref="command" onKeyDown={this.handleKeyDown.bind(this)} />
+      </div>
     );
   }
 
-  handleEvaluate(command) {
-    this.driver.send(command + "\r");
+  handleKeyDown(e) {
+    if (e.keyCode == ENTER_KEY_CODE) {
+      e.preventDefault();
+      let command = this.refs.command.value;
+      this.driver.send(command + "\r");
+      this.refs.command.select();
+    }
   }
 }

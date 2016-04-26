@@ -176,14 +176,29 @@ TerminalDecoder.prototype = {
       // This is a valid prefix of an OSC, but it doesn't have the terminator.
       return -1;
     } else if (m = new RegExp("^(\\d+);([^" + TerminalDecoder.NON_PRINTABLE + "]*)(\x07|\x1b\\\\)").exec(buffer)) {
-      cb('osc', parseInt(m[1], 10), m[2]);
+      var code = parseInt(m[1], 10);
+      if (code == 1866) {
+        this.handleHTMLCommand(m[2], cb);
+      } else {
+        cb('osc', code, m[2]);
+      }
       return m[0].length;
     } else {
       // Invalid OSC
       console.error("Invalid OSC:", buffer);
       return 0;
     }
-  }
+  },
+
+  handleHTMLCommand: function(command, cb) {
+    var dataStart = command.indexOf(';') + 1;
+    var opcode = parseInt(command.slice(0, dataStart - 1), 10);
+    if (opcode == 0) {
+      cb('insert-html', command.slice(dataStart));
+    } else {
+      cp('osc', 1866, command);
+    }
+  },
 };
 
 TerminalDecoder.ESC = String.fromCharCode(0x1b);
