@@ -20,11 +20,13 @@ begin
       set -l git_info "<strong>"$git_info"</strong>"
     end
 
+    set -l pwd_link '<a href="cmd://open%20.">'(prompt_pwd)'</a>'
+
     htfish_html_printf "<strong>%s</strong>@<strong>%s</strong> <strong>%s</strong> <strong>%s</strong>%s" \
       $USER \
       $htfish_prompt_hostname \
       (date "+%x %I:%M %p") \
-      (prompt_pwd) \
+      $pwd_link \
       $git_info
     # We write a device status report escape to cause the terminal to respond
     # with CSI 0 n. This will be used as a binding to break out of Fish's

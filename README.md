@@ -1,3 +1,26 @@
+Use Cases
+=========
+
+File management
+---------------
+It should be easy to open Finder to the directory you're in. Directory listings should behave like Finder windows, with drag-n-drop and double clicking to open them.
+
+Jupyter features
+----------------
+Jupyter has great table support, as well as images.
+
+Git
+---
+- Run `git status` and an augmented status page shows up with buttons to stage, unstage, commit, etc files. Typing additional git commands will cause the existing status window to refresh. Git diff will open in a popup. Git commit opens the editor in a popup.
+
+SSH
+---
+- Tmux would run in a popup, not much fanciness there.
+
+ITerm parity
+------------
+Shell integration allows you to set marks to jump to output of specific commands, identifies previous directories and allows downloading remote files.
+
 HTML Mode
 =========
 

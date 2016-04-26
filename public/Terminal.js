@@ -49,12 +49,25 @@ export class Cell extends React.Component {
     if (cell.type == "html") {
       let payload = { __html: cell.content };
       return (
-        <div className={CSS.htmlCell} dangerouslySetInnerHTML={payload} />
+        <div className={CSS.htmlCell} dangerouslySetInnerHTML={payload} onClick={this.handleClick.bind(this)} />
       );
     } else {
       return (
-        <div className={CSS.textCell}>{cell.content}</div>
+        <div className={CSS.textCell} onClick={this.handleClick.bind(this)}>{cell.content}</div>
       );
+    }
+  }
+
+  handleClick(e) {
+    if (e.target.tagName == "A") {
+      if (e.target.href.startsWith("cmd://")) {
+        // This link is a command to run
+        e.preventDefault();
+        let command = unescape(e.target.href.slice(6));
+        if (this.props.onExecute) {
+          this.props.onExecute(command);
+        }
+      }
     }
   }
 }
@@ -94,7 +107,8 @@ export default class Terminal extends React.Component {
       <Cell
         key={i}
         cell={c}
-        mutable={i == this.driver.cells.length - 1} />
+        mutable={i == this.driver.cells.length - 1}
+        onExecute={this.handleExecute.bind(this)} />
     );
     return (
       <div className={CSS.terminal} tabIndex={-1} onKeyDown={this.handleKeyDownTerminal.bind(this)}>
@@ -136,6 +150,10 @@ export default class Terminal extends React.Component {
     } else if (e.key == "Tab") {
       e.preventDefault();
     }
+  }
+
+  handleExecute(command) {
+    this.driver.send(command + "\r");
   }
 
   delayUpdate() {
