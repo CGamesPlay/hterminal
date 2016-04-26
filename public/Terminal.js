@@ -69,6 +69,7 @@ export default class Terminal extends React.Component {
   componentDidMount() {
     this.driver.on('output', this.delayUpdate);
     window.addEventListener('resize', this.delayUpdate);
+    this.refs.input.focus();
   }
 
   componentWillUpdate() {
@@ -96,7 +97,7 @@ export default class Terminal extends React.Component {
         mutable={i == this.driver.cells.length - 1} />
     );
     return (
-      <div className={CSS.terminal} tabIndex={-1} onKeyDown={this.handleKeyDownTerminal.bind(this)} onFocus={this.handleFocusTerminal.bind(this)}>
+      <div className={CSS.terminal} tabIndex={-1} onKeyDown={this.handleKeyDownTerminal.bind(this)}>
         <div ref="output" className={CSS.terminalOutput}>
           <div ref="topSpacer" className={CSS.terminalSpacer} />
           <div ref="cellContainer">
@@ -112,12 +113,17 @@ export default class Terminal extends React.Component {
 
   handleKeyDownTerminal(e) {
     if (e.target != this.refs.input) {
-      this.refs.input.focus();
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        // Don't focus
+      } else {
+        if (e.key == "Tab") {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        this.refs.input.focus();
+        this.handleKeyDown(e);
+      }
     }
-  }
-
-  handleFocusTerminal() {
-    this.refs.input.focus();
   }
 
   handleKeyDown(e) {

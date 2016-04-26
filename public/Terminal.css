@@ -40,6 +40,10 @@ html, body, :global(#react-root) {
   white-space: pre-wrap;
 }
 
+.htmlCell {
+  font-family: sans-serif;
+}
+
 .htmlCell iframe {
   width: 100%;
   border: none;

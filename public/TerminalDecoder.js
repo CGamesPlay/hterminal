@@ -177,7 +177,9 @@ TerminalDecoder.prototype = {
       return -1;
     } else if (m = new RegExp("^(\\d+);([^" + TerminalDecoder.NON_PRINTABLE + "]*)(\x07|\x1b\\\\)").exec(buffer)) {
       var code = parseInt(m[1], 10);
-      if (code == 1866) {
+      if (code == 0) {
+        cb('set-title', m[2]);
+      } else if (code == 1866) {
         this.handleHTMLCommand(m[2], cb);
       } else {
         cb('osc', code, m[2]);

@@ -22,3 +22,9 @@ insert-html
 -----------
 
 Create a new HTML-based cell at the end and fill it with the HTML document.
+
+
+Troubleshooting
+===============
+
+- HTML prompt not displaying. Fish needs to be at least version 2.2.0 or else it will decide the prompt is too long and not display it.
