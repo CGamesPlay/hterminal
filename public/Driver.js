@@ -1,4 +1,3 @@
-import io from 'socket.io-client';
 import EventEmitter from 'events';
 import TerminalDecoder from './TerminalDecoder';
 
@@ -6,25 +5,13 @@ export default class Driver extends EventEmitter {
   constructor() {
     super();
 
-    this.socket = io();
-    this.cells = [];
-    this.decoder = new TerminalDecoder();
-
-    this.socket.on('connect', this.handleConnect.bind(this));
-    this.socket.on('output', this.decodeOutput.bind(this));
-    this.socket.on('exit', this.handleExit.bind(this));
-  }
-
-  send(data) {
-    this.socket.emit('data', data);
-  }
-
-  handleConnect() {
     this.cells = [];
     this.decoder = new TerminalDecoder();
   }
 
-  decodeOutput(output) {
+  handleConnect() { }
+
+  write(output) {
     this.decoder.write(output, this.handleCommand.bind(this));
   }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
-import Driver from './Driver';
 import CSS from './Terminal.css';
 
 function debounce(func, wait, immediate) {
@@ -75,14 +74,19 @@ export class Cell extends React.Component {
 export default class Terminal extends React.Component {
   constructor(props) {
     super(props);
-    this.driver = new Driver();
     this.delayUpdate = debounce(this.delayUpdate.bind(this), 10);
   }
 
   componentDidMount() {
-    this.driver.on('output', this.delayUpdate);
+    this.props.driver.on('output', this.delayUpdate);
     window.addEventListener('resize', this.delayUpdate);
     this.refs.input.focus();
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.driver !== this.props.driver) {
+      newProps.driver.on('output', this.delayUpdate);
+    }
   }
 
   componentWillUpdate() {
@@ -103,11 +107,11 @@ export default class Terminal extends React.Component {
   }
 
   render() {
-    let cells = this.driver.cells.map((c, i) =>
+    let cells = this.props.driver.cells.map((c, i) =>
       <Cell
         key={i}
         cell={c}
-        mutable={i == this.driver.cells.length - 1}
+        mutable={i == this.props.driver.cells.length - 1}
         onExecute={this.handleExecute.bind(this)} />
     );
     return (
@@ -144,7 +148,7 @@ export default class Terminal extends React.Component {
     if (e.keyCode == ENTER_KEY_CODE) {
       e.preventDefault();
       let command = this.refs.input.value;
-      this.driver.send(command + "\r");
+      this.props.onInput(command + "\r");
       this.refs.input.select();
       this.scrollToBottom();
     } else if (e.key == "Tab") {
@@ -153,7 +157,7 @@ export default class Terminal extends React.Component {
   }
 
   handleExecute(command) {
-    this.driver.send(command + "\r");
+    this.props.onInput(command + "\r");
   }
 
   delayUpdate() {

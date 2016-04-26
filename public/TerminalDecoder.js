@@ -81,7 +81,7 @@ TerminalDecoder.prototype = {
 
   readCSI: function(buffer, cb) {
     var m;
-    if (/^([?>]?)(\d;)*$/.test(buffer)) {
+    if (/^([?>]?)(\d|;)*$/.test(buffer)) {
       // This is a valid prefix with no terminator
       return -1;
     } else if (m = /^([?>]?)((\d+;?)*)([A-Za-z])/.exec(buffer)) {
