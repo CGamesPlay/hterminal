@@ -38,7 +38,7 @@ export default class Driver extends EventEmitter {
       this.handleOutput(arguments[1]);
     } else if (command == 'insert-html') {
       this.htmlInsertNewCell(arguments[1]);
-    } else {
+    } else if (command != 'style') {
       console.log.apply(console, arguments);
     }
   }
