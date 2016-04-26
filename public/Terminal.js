@@ -1,38 +1,8 @@
 import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
+import BottomScroller from './BottomScroller';
 import CSS from './Terminal.css';
-
-function debounce(func, wait, immediate) {
-  var timeout, args, context, timestamp, result;
-
-  var later = function() {
-    var last = Date.now - timestamp;
-
-    if (last < wait && last >= 0) {
-      timeout = setTimeout(later, wait - last);
-    } else {
-      timeout = null;
-      if (!immediate) {
-        result = func.apply(context, args);
-        if (!timeout) context = args = null;
-      }
-    }
-  };
-
-  return function() {
-    context = this;
-    args = arguments;
-    timestamp = Date.now;
-    var callNow = immediate && !timeout;
-    if (!timeout) timeout = setTimeout(later, wait);
-    if (callNow) {
-      result = func.apply(context, args);
-      context = args = null;
-    }
-
-    return result;
-  };
-};
+import debounce from './util/debounce';
 
 const ENTER_KEY_CODE = 13;
 
@@ -79,30 +49,12 @@ export default class Terminal extends React.Component {
 
   componentDidMount() {
     this.props.driver.on('output', this.delayUpdate);
-    window.addEventListener('resize', this.delayUpdate);
     this.refs.input.focus();
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.driver !== this.props.driver) {
       newProps.driver.on('output', this.delayUpdate);
-    }
-  }
-
-  componentWillUpdate() {
-    // You are "at the bottom" if the scroll is within epsilon of the bottom
-    // currently.
-    let epsilon = 10;
-    this.isScrolledToBottom = this.refs.output.scrollTop + this.refs.output.clientHeight + epsilon >= this.refs.output.scrollHeight;
-  }
-
-  componentDidUpdate() {
-    let output = this.refs.output,
-        cellContainer = this.refs.cellContainer,
-        spacerHeight = Math.max(0, output.clientHeight - cellContainer.scrollHeight);
-    this.refs.topSpacer.style.height = spacerHeight + "px";
-    if (this.isScrolledToBottom) {
-      this.scrollToBottom();
     }
   }
 
@@ -116,12 +68,9 @@ export default class Terminal extends React.Component {
     );
     return (
       <div className={CSS.terminal} tabIndex={-1} onKeyDown={this.handleKeyDownTerminal.bind(this)}>
-        <div ref="output" className={CSS.terminalOutput}>
-          <div ref="topSpacer" className={CSS.terminalSpacer} />
-          <div ref="cellContainer">
-            {cells}
-          </div>
-        </div>
+        <BottomScroller ref="scroller" className={CSS.terminalOutput}>
+          {cells}
+        </BottomScroller>
         <div className={CSS.terminalInput}>
           <input ref="input" onKeyDown={this.handleKeyDown.bind(this)} />
         </div>
@@ -150,7 +99,7 @@ export default class Terminal extends React.Component {
       let command = this.refs.input.value;
       this.props.onInput(command + "\r");
       this.refs.input.select();
-      this.scrollToBottom();
+      this.refs.scroller.scrollToBottom();
     } else if (e.key == "Tab") {
       e.preventDefault();
     }
@@ -162,9 +111,5 @@ export default class Terminal extends React.Component {
 
   delayUpdate() {
     this.forceUpdate();
-  }
-
-  scrollToBottom() {
-    this.refs.output.scrollTop = this.refs.output.scrollHeight;
   }
 }
