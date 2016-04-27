@@ -4,7 +4,40 @@ import BottomScroller from './BottomScroller';
 import CSS from './Terminal.css';
 import debounce from './util/debounce';
 
-const ENTER_KEY_CODE = 13;
+function inputFromEvent(event) {
+  if (event.type == "keypress") {
+    if (event.metaKey) {
+      // Don't process OS shortcuts
+      return "";
+    }
+    let charCode = event.keyCode;
+    if (charCode < 16 || charCode == 27) {
+      // Pass direct for NL, BS, etc
+    } else if (charCode < 32) {
+      // Modifier key
+      return "";
+    } else if (charCode >= 64 && charCode < 91) {
+      if (!event.shiftKey) {
+        charCode += 32;
+      }
+      if (event.ctrlKey) {
+        charCode -= 96;
+      }
+    }
+    return String.fromCharCode(charCode);
+  } else if (event.type == "keydown") {
+    if (event.keyCode < 16 || event.keyCode == 27) {
+      // Control characters on a keyboard. Pass through.
+      return String.fromCharCode(event.keyCode);
+    } else if (event.code == "Delete") {
+      return String.fromCharCode(127);
+    } else {
+      return "";
+    }
+  } else {
+    return "";
+  }
+}
 
 export class Cell extends React.Component {
   constructor(props) {
@@ -49,7 +82,8 @@ export default class Terminal extends React.Component {
 
   componentDidMount() {
     this.props.driver.on('output', this.delayUpdate);
-    this.refs.input.focus();
+    this.refs.container.addEventListener('keydown', this.handleKeyEvent.bind(this), false);
+    this.refs.container.addEventListener('keypress', this.handleKeyEvent.bind(this), false);
   }
 
   componentWillReceiveProps(newProps) {
@@ -67,41 +101,20 @@ export default class Terminal extends React.Component {
         onExecute={this.handleExecute.bind(this)} />
     );
     return (
-      <div className={CSS.terminal} tabIndex={-1} onKeyDown={this.handleKeyDownTerminal.bind(this)}>
-        <BottomScroller ref="scroller" className={CSS.terminalOutput}>
+      <div ref="container" className={CSS.terminal} tabIndex={-1}>
+        <BottomScroller ref="scroller" className={CSS.terminalContents}>
           {cells}
         </BottomScroller>
-        <div className={CSS.terminalInput}>
-          <input ref="input" onKeyDown={this.handleKeyDown.bind(this)} />
-        </div>
       </div>
     );
   }
 
-  handleKeyDownTerminal(e) {
-    if (e.target != this.refs.input) {
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
-        // Don't focus
-      } else {
-        if (e.key == "Tab") {
-          e.stopPropagation();
-          e.preventDefault();
-        }
-        this.refs.input.focus();
-        this.handleKeyDown(e);
-      }
-    }
-  }
-
-  handleKeyDown(e) {
-    if (e.keyCode == ENTER_KEY_CODE) {
+  handleKeyEvent(e) {
+    var input = inputFromEvent(e);
+    if (input.length > 0) {
       e.preventDefault();
-      let command = this.refs.input.value;
-      this.props.onInput(command + "\r");
-      this.refs.input.select();
       this.refs.scroller.scrollToBottom();
-    } else if (e.key == "Tab") {
-      e.preventDefault();
+      this.props.onInput(input);
     }
   }
 
