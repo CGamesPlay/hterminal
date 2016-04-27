@@ -1,5 +1,5 @@
-var TerminalStream = require('../TerminalStream');
-var TerminalDecoder = require('../public/TerminalDecoder');
+var TerminalStream = require('../terminal/TerminalStream');
+var TerminalDecoder = require('../terminal/TerminalDecoder');
 var expect = require('chai').expect;
 
 describe('TerminalStream', function() {

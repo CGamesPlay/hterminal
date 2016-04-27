@@ -1,4 +1,4 @@
-var TerminalDecoder = require('../public/TerminalDecoder');
+var TerminalDecoder = require('../terminal/TerminalDecoder');
 var expect = require('chai').expect;
 
 describe('TerminalDecoder', function() {

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import io from 'socket.io-client';
 import Terminal from './Terminal';
-import Driver from './Driver';
+import Driver from '../terminal/Driver';
 
 var socket = io();
 function connectDriver(driver) {
@@ -29,7 +29,7 @@ function render() {
 
 render();
 if (module.hot) {
-  module.hot.accept("./Driver", function(newDriver) {
+  module.hot.accept("../terminal/Driver", function(newDriver) {
     driver = new newDriver();
     connectDriver(driver);
     render();

@@ -7,7 +7,7 @@ module.exports = function middleware(socket, next) {
     cwd: process.env.HOME,
     env: {
       TERM: "xterm-256color-html",
-      TERMINFO: path.join(__dirname, "terminfo"),
+      TERMINFO: path.join(__dirname, "share/terminfo"),
     },
   });
 

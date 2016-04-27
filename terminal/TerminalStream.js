@@ -1,7 +1,7 @@
 var util = require('util');
 var Transform = require('stream').Transform;
 var StringDecoder = require('string_decoder').StringDecoder;
-var TerminalDecoder = require('./public/TerminalDecoder');
+var TerminalDecoder = require('./TerminalDecoder');
 
 function TerminalStream() {
   if (!(this instanceof TerminalStream)) {
