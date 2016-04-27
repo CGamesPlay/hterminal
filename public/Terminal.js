@@ -55,7 +55,7 @@ export class Section extends React.Component {
       );
     } else {
       return (
-        <div className={CSS.textSection} onClick={this.handleClick.bind(this)}>{section.content}</div>
+        <div className={CSS.textSection} onClick={this.handleClick.bind(this)}>{section.toString()}</div>
       );
     }
   }
@@ -84,6 +84,7 @@ export default class Terminal extends React.Component {
     this.props.driver.on('output', this.delayUpdate);
     this.refs.container.addEventListener('keydown', this.handleKeyEvent.bind(this), false);
     this.refs.container.addEventListener('keypress', this.handleKeyEvent.bind(this), false);
+    this.refs.container.focus();
   }
 
   componentWillReceiveProps(newProps) {

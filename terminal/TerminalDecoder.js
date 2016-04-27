@@ -10,17 +10,18 @@ TerminalDecoder.prototype = {
     }
 
     while (buffer.length > 0) {
-      var escapeStart = buffer.indexOf(TerminalDecoder.ESC);
-      if (escapeStart == -1) {
+      // Find the first instance of an escape sequence (or special character)
+      var escape = /\x07|\x08|\x0d|\x0c|\x0a|\x08|\x0b|\x1b/.exec(buffer);
+      if (!escape) {
         // No escape in this chunk, emit the entire thing
-        cb('output', buffer);
+        cb('output', this.formatPrintable(buffer));
         break;
 
       } else {
-        if (escapeStart > 0) {
+        if (escape.index > 0) {
           // Emit characters in chunk before start of escape sequence
-          cb('output', buffer.slice(0, escapeStart));
-          buffer = buffer.slice(escapeStart);
+          cb('output', this.formatPrintable(buffer.slice(0, escape.index)));
+          buffer = buffer.slice(escape.index);
         }
 
         var escapeLength = this.readEscape(buffer, cb);
@@ -30,7 +31,7 @@ TerminalDecoder.prototype = {
           break;
         } else if (escapeLength == 0) {
           // No escape sequence, emit the raw character
-          cb('output', buffer.slice(0, 1));
+          cb('output', this.formatPrintable(buffer.slice(0, 1)));
           buffer = buffer.slice(1);
         } else {
           // Single escape sequence
@@ -42,7 +43,7 @@ TerminalDecoder.prototype = {
 
   end: function() {
     if (this.pending) {
-      return [ [ 'output', this.pending ] ];
+      return [ [ 'output', this.formatPrintable(this.pending) ] ];
     } else {
       return [];
     }
@@ -53,26 +54,55 @@ TerminalDecoder.prototype = {
   // sequence, return -1. If the buffer does not contain a valid escape
   // sequence, return 0.
   readEscape: function(buffer, cb) {
-    if (buffer.length == 1) {
-      return -1;
-    } else if (buffer[1] == 'c') {
-      cb('reset');
-      return 2;
-    } else if (buffer[1] == '[') {
-      var ret = this.readCSI(buffer.slice(2), cb);
-      return ret <= 0 ? ret : ret + 2;
-    } else if (buffer[1] == ']') {
-      var ret = this.readOSC(buffer.slice(2), cb);
-      return ret <= 0 ? ret : ret + 2;
-    } else if (buffer[1] == '>' || buffer[1] == '=') {
-      // Application keypad mode, ignored
-      return 2;
-    } else if (buffer[1] == '(') {
-      if (buffer.length == 2) {
+    if (buffer[0] == '\x07') {
+      cb('bell');
+      return 1;
+    } else if (buffer[0] == '\b') {
+      cb('backspace');
+      return 1;
+    } else if (buffer[0] == '\r') {
+      cb('carriage-return');
+      return 1;
+    } else if (buffer[0] == '\f') {
+      cb('line-feed');
+      return 1;
+    } else if (buffer[0] == '\n') {
+      cb('line-feed');
+      cb('carriage-return');
+      return 1;
+    } else if (buffer[0] == '\t') {
+      cb('tab');
+      return 1;
+    } else if (buffer[0] == '\v') {
+      cb('line-feed');
+      return 1;
+    } else if (buffer[0] == '\x1b') {
+      if (buffer.length == 1) {
         return -1;
+      } else if (buffer[1] == 'c') {
+        cb('reset');
+        return 2;
+      } else if (buffer[1] == 'M') {
+        cb('reverse-index');
+        return 2;
+      } else if (buffer[1] == '[') {
+        var ret = this.readCSI(buffer.slice(2), cb);
+        return ret <= 0 ? ret : ret + 2;
+      } else if (buffer[1] == ']') {
+        var ret = this.readOSC(buffer.slice(2), cb);
+        return ret <= 0 ? ret : ret + 2;
+      } else if (buffer[1] == '>' || buffer[1] == '=') {
+        // Application keypad mode, ignored
+        return 2;
+      } else if (buffer[1] == '(') {
+        if (buffer.length == 2) {
+          return -1;
+        } else {
+          // Set charset, 3 chars long
+          return 3;
+        }
       } else {
-        // Set charset, 3 chars long
-        return 3;
+        return 0;
       }
     } else {
       return 0;
@@ -162,6 +192,16 @@ TerminalDecoder.prototype = {
       } else if (m[1] == "" && m[4] == "n" && codes[0] == 5) {
         // Device status report
         cb('report-status');
+      } else if (m[1] == "" && m[4] == "C") {
+        cb('cursor-right', codes[0] || 1);
+      } else if (m[1] == "" && m[4] == "D") {
+        cb('cursor-left', codes[0] || 1);
+      } else if (m[1] == "" && m[4] == "H") {
+        cb('move-cursor', codes[1] || 1, codes[0] || 1);
+      } else if (m[1] == "" && m[4] == "J") {
+        cb('erase-display', codes[0] != 1, codes[0] > 0);
+      } else if (m[1] == "" && m[4] == "K") {
+        cb('erase-line', codes[0] > 0, codes[0] != 1);
       } else {
         cb('csi', m[1], codes, m[4]);
       }
@@ -190,7 +230,6 @@ TerminalDecoder.prototype = {
       return m[0].length;
     } else {
       // Invalid OSC
-      console.error("Invalid OSC:", buffer);
       return 0;
     }
   },
@@ -203,6 +242,13 @@ TerminalDecoder.prototype = {
     } else {
       cb('osc', 1866, command);
     }
+  },
+
+  formatPrintable: function(string) {
+    return string.replace(
+      new RegExp("[" + TerminalDecoder.NON_PRINTABLE + "]", "g"),
+      (m) => "^" + String.fromCharCode(64 + m.charCodeAt(0))
+    );
   },
 };
 

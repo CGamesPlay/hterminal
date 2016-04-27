@@ -4,14 +4,152 @@ var TerminalDecoder  = require('./TerminalDecoder');
 
 "use strict";
 
-function Driver() {
+function TextSection(width, height) {
+  if (!(this instanceof TextSection)) {
+    return new TextSection(width, height);
+  }
+  // Assume a sane default for width and height
+  if (!(width >= 1)) {
+    width = 80;
+  }
+  if (!(height >= 1)) {
+    height = 24;
+  }
+  this.type == "text";
+  this.lines = [''];
+  this.width = width;
+  this.height = height;
+  this.x = 0;
+  this.y = 0;
+}
+
+TextSection.prototype.output = function(text) {
+  var i = 0;
+  while (i < text.length) {
+    if (this.x >= this.width) {
+      this._allocateLine();
+      this.y += 1;
+      this.x = 0;
+    }
+    var nextLine = text.slice(i, i + this.width - this.x);
+    this._allocateSpaceOnLine();
+    // Overwrite characters on the current line up to the length of the line
+    this.lines[this.y] =
+      this.lines[this.y].substr(0, this.x) + // Before portion
+      nextLine + // Overwritten portion
+      this.lines[this.y].substr(this.x + nextLine.length); // After portion
+    i += nextLine.length;
+    this.x += nextLine.length;
+  }
+  return this;
+};
+
+// Move cursor to left margin
+TextSection.prototype.carriageReturn = function() {
+  this.x = 0;
+};
+
+// Move the cursor down, scrolling if necessary.
+TextSection.prototype.lineFeed = function() {
+  this.y += 1;
+  if (this.y >= this.lines.length) {
+    this._allocateLine();
+  }
+};
+
+// Move the cursor back, possibly wrapping around to the previous line.
+TextSection.prototype.backspace = function() {
+  if (this.x == 0) {
+    // Move up if not on the first line
+    if (this.y != this._screenTop()) {
+      this.y -= 1;
+      this.x = this.width - 1;
+    }
+  } else {
+    this.x -= 1;
+  }
+};
+
+// Erase all characters before the cursor and/or after the cursor.
+TextSection.prototype.eraseLine = function(before, after) {
+  if (after) {
+    this.lines[this.y] = this.lines[this.y].slice(0, this.x);
+  }
+  if (before) {
+    this.lines[this.y] =
+      " ".repeat(this.x + 1) + // Blanks
+      this.lines[this.y].substr(this.x + 1); // Remainder
+  }
+};
+
+TextSection.prototype.cursorLeft = function(n) {
+  this.x = Math.max(0, this.x - n);
+};
+
+TextSection.prototype.cursorRight = function(n) {
+  this.x = Math.max(0, this.x + n);
+};
+
+TextSection.prototype.cursorUp = function(n) {
+  this.y = Math.max(this._screenTop(), this.y - n);
+};
+
+TextSection.prototype.cursorDown = function(n) {
+  this.y = Math.min(this._screenTop() + this.height, this.y + n);
+};
+
+// Move cursor to a 1-based coordinate
+TextSection.prototype.moveCursor = function(x, y) {
+  x = Math.min(Math.max(1, x), this.width) - 1;
+  y = Math.min(Math.max(1, y), this.height) - 1;
+  this.x = x;
+  this.y = this._screenTop() + y;
+  while (this.y >= this.lines.length) {
+    this._allocateLine();
+  }
+};
+
+// Scroll up one line.
+TextSection.prototype.reverseIndex = function() {
+  if (this.y == this._screenTop()) {
+    // Insert a new line above the current and put the cursor in it.
+    this.lines.splice(this._screenTop(), 0, "");
+    // Delete the bottom line if it is below the bottom of the screen
+    this.lines.splice(this._screenTop() + this.height - 1, 100);
+  } else {
+    // Otherwise, move the cursor up one line
+    this.y -= 1;
+  }
+};
+
+// Find the y offset of the topmost visible screen line
+TextSection.prototype._screenTop = function() {
+  return Math.max(0, this.lines.length - this.height);
+};
+
+TextSection.prototype._allocateLine = function() {
+  this.lines.push("");
+};
+
+// Allocate space on current line for cursor
+TextSection.prototype._allocateSpaceOnLine = function() {
+  this.lines[this.y] += " ".repeat(Math.max(0, this.x - this.lines[this.y].length));
+};
+
+TextSection.prototype.toString = function() {
+  return this.lines.join("\n");
+};
+
+function Driver(width, height) {
   if (!(this instanceof Driver)) {
-    return new Driver();
+    return new Driver(width, height);
   }
   EventEmitter.call(this);
 
   this.sections = [];
   this.decoder = new TerminalDecoder();
+  this.width = width;
+  this.height = height;
 }
 util.inherits(Driver, EventEmitter);
 
@@ -26,9 +164,30 @@ Driver.prototype.handleExit = function(code, signal) {
   this.decoder.end().forEach(this.handleCommand.bind(this));
 };
 
+Driver.prototype.textSectionCommands = {
+  "output": "output",
+  "backspace": "backspace",
+  "tab": "tab",
+  "line-feed": "lineFeed",
+  "carriage-return": "carriageReturn",
+  "erase-line": "eraseLine",
+  "cursor-left": "cursorLeft",
+  "cursor-right": "cursorRight",
+  "cursor-up": "cursorUp",
+  "cursor-down": "cursorDown",
+  "move-cursor": "moveCursor",
+  "reverse-index": "reverseIndex",
+};
+
 Driver.prototype.handleCommand = function(command) {
-  if (command == 'output') {
-    this.handleOutput(arguments[1]);
+  if (this.textSectionCommands[command]) {
+    var section = this.getOrCreateTextSection();
+    var funcName = this.textSectionCommands[command];
+    if (typeof funcName !== "string" || typeof section[funcName] !== 'function') {
+      throw new Error("Invalid textSectionCommand: " + command);
+    }
+    section[funcName].apply(section, Array.prototype.slice.call(arguments, 1));
+    this.emit('output', this.sections);
   } else if (command == 'insert-html') {
     this.htmlInsertNewSection(arguments[1]);
   } else if (command == 'set-title') {
@@ -41,45 +200,20 @@ Driver.prototype.handleCommand = function(command) {
   }
 };
 
-Driver.prototype.handleOutput = function(output) {
+Driver.prototype.getOrCreateTextSection = function() {
   var current_section = this.sections[this.sections.length - 1];
-  if (current_section && current_section.type == "text") {
-    var new_section = {
-      type: "text",
-      content: current_section["content"] + this.formatString(output),
-    };
-    this.sections = this.sections.slice(0, -1).concat(new_section);
+  if (current_section && current_section instanceof TextSection) {
+    return current_section;
   } else {
-    var new_section = {
-      type: "text",
-      content: this.formatString(output),
-    };
-    this.sections = this.sections.concat(new_section);
+    var new_section = new TextSection(this.width, this.height);
+    this.sections.push(new_section);
+    return new_section;
   }
-  this.emit('output', this.sections);
-};
+}
 
 Driver.prototype.htmlInsertNewSection = function(html) {
   this.sections.push({ type: "html", content: html });
   this.emit('output', this.sections);
 };
-
-Driver.prototype.formatString = function(string) {
-  // Note:
-  //   NL -> cursor to column 0, down one line
-  //   CR -> cursor to colum 0
-  //   FF -> down one line
-  return string
-    .replace(/\x0c/g, '\n')
-    .replace(/\x07/g, '\uD83D\uDD14')
-    .replace(/\x0d/g, '')
-    .replace(new RegExp("[" + TerminalDecoder.NON_PRINTABLE + "]", "g"), (m) => {
-      return "^" + String.fromCharCode(64 + m.charCodeAt(0));
-    });
-};
-
-if (module.hot) {
-  module.hot.decline();
-}
 
 module.exports = Driver;

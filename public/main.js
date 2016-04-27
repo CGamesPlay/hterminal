@@ -29,8 +29,9 @@ function render() {
 
 render();
 if (module.hot) {
-  module.hot.accept("../terminal/Driver", function(newDriver) {
-    driver = new newDriver();
+  module.hot.accept("../terminal/Driver", function() {
+    var NewDriver = require('../terminal/Driver');
+    driver = new NewDriver();
     connectDriver(driver);
     render();
   });
