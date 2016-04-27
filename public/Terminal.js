@@ -39,23 +39,23 @@ function inputFromEvent(event) {
   }
 }
 
-export class Cell extends React.Component {
+export class Section extends React.Component {
   constructor(props) {
     super(props);
     this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
   }
 
   render() {
-    let cell = this.props.cell;
+    let section = this.props.section;
 
-    if (cell.type == "html") {
-      let payload = { __html: cell.content };
+    if (section.type == "html") {
+      let payload = { __html: section.content };
       return (
-        <div className={CSS.htmlCell} dangerouslySetInnerHTML={payload} onClick={this.handleClick.bind(this)} />
+        <div className={CSS.htmlSection} dangerouslySetInnerHTML={payload} onClick={this.handleClick.bind(this)} />
       );
     } else {
       return (
-        <div className={CSS.textCell} onClick={this.handleClick.bind(this)}>{cell.content}</div>
+        <div className={CSS.textSection} onClick={this.handleClick.bind(this)}>{section.content}</div>
       );
     }
   }
@@ -93,17 +93,17 @@ export default class Terminal extends React.Component {
   }
 
   render() {
-    let cells = this.props.driver.cells.map((c, i) =>
-      <Cell
+    let sections = this.props.driver.sections.map((s, i) =>
+      <Section
         key={i}
-        cell={c}
-        mutable={i == this.props.driver.cells.length - 1}
+        section={s}
+        mutable={i == this.props.driver.sections.length - 1}
         onExecute={this.handleExecute.bind(this)} />
     );
     return (
       <div ref="container" className={CSS.terminal} tabIndex={-1}>
         <BottomScroller ref="scroller" className={CSS.terminalContents}>
-          {cells}
+          {sections}
         </BottomScroller>
       </div>
     );

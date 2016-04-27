@@ -20,16 +20,16 @@ html, body, :global(#react-root) {
   overflow: scroll;
 }
 
-.textCell {
+.textSection {
   font-family: 'Anonymous Pro', monospace;
   white-space: pre-wrap;
 }
 
-.htmlCell {
+.htmlSection {
   font-family: sans-serif;
 }
 
-.htmlCell iframe {
+.htmlSection iframe {
   width: 100%;
   border: none;
 }
