@@ -192,6 +192,10 @@ TerminalDecoder.prototype = {
       } else if (m[1] == "" && m[4] == "n" && codes[0] == 5) {
         // Device status report
         cb('report-status');
+      } else if (m[1] == "" && m[4] == "A") {
+        cb('cursor-up', codes[0] || 1);
+      } else if (m[1] == "" && m[4] == "B") {
+        cb('cursor-down', codes[0] || 1);
       } else if (m[1] == "" && m[4] == "C") {
         cb('cursor-right', codes[0] || 1);
       } else if (m[1] == "" && m[4] == "D") {
@@ -199,9 +203,11 @@ TerminalDecoder.prototype = {
       } else if (m[1] == "" && m[4] == "H") {
         cb('move-cursor', codes[1] || 1, codes[0] || 1);
       } else if (m[1] == "" && m[4] == "J") {
-        cb('erase-display', codes[0] != 1, codes[0] > 0);
+        cb('erase-display', codes[0] > 0, codes[0] != 1);
       } else if (m[1] == "" && m[4] == "K") {
         cb('erase-line', codes[0] > 0, codes[0] != 1);
+      } else if (m[1] == "" && m[4] == "M") {
+        cb('delete-lines', codes[0] || 1);
       } else {
         cb('csi', m[1], codes, m[4]);
       }

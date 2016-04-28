@@ -27,9 +27,9 @@ TextSection.prototype.output = function(text) {
   var i = 0;
   while (i < text.length) {
     if (this.x >= this.width) {
-      this._allocateLine();
       this.y += 1;
       this.x = 0;
+      this._allocateLine();
     }
     var nextLine = text.slice(i, i + this.width - this.x);
     this._allocateSpaceOnLine();
@@ -82,6 +82,31 @@ TextSection.prototype.eraseLine = function(before, after) {
   }
 };
 
+// Erase all characters before the cursor and/or after the cursor.
+TextSection.prototype.eraseDisplay = function(above, below) {
+  if (below && (above || this.x == 0 && this.y == 0)) {
+    // Erasing the entire screen, so just allocate enough lines to make a new
+    // screenful and adjust Y.
+    var screenY = this.y - this._screenTop();
+    for (var i = 0; i < this.height; i++) {
+      this._allocateLine();
+    }
+    this.y = this.lines.length - this.height + screenY;
+  } else if (above) {
+    // Clear all characters from the top of the screen to the cursor.
+    for (var y = this._screenTop(); y < this.y; y++) {
+      this.lines[y] = "";
+    }
+    this.eraseLine(true, false);
+  } else if (below) {
+    // Clear all characters from the cursor to the end of the screen.
+    for (var y = this.y + 1; y < this.y + this.height && y < this.lines.length; y++) {
+      this.lines[y] = "";
+    }
+    this.eraseLine(false, true);
+  }
+};
+
 TextSection.prototype.cursorLeft = function(n) {
   this.x = Math.max(0, this.x - n);
 };
@@ -96,6 +121,9 @@ TextSection.prototype.cursorUp = function(n) {
 
 TextSection.prototype.cursorDown = function(n) {
   this.y = Math.min(this._screenTop() + this.height, this.y + n);
+  while (this.y >= this.lines.length) {
+    this._allocateLine();
+  }
 };
 
 // Move cursor to a 1-based coordinate
@@ -112,13 +140,23 @@ TextSection.prototype.moveCursor = function(x, y) {
 // Scroll up one line.
 TextSection.prototype.reverseIndex = function() {
   if (this.y == this._screenTop()) {
-    // Insert a new line above the current and put the cursor in it.
-    this.lines.splice(this._screenTop(), 0, "");
+    if (this.y == 0) {
+      // If there's no scrollback, insert a new blank line
+      this.lines.splice(this._screenTop(), 0, "");
+    }
     // Delete the bottom line if it is below the bottom of the screen
     this.lines.splice(this._screenTop() + this.height - 1, 100);
   } else {
     // Otherwise, move the cursor up one line
     this.y -= 1;
+  }
+};
+
+// Deletes lines after the cursor, moving later lines up.
+TextSection.prototype.deleteLines = function(n) {
+  this.lines.splice(this.y, n);
+  if (this.y >= this.lines.length) {
+    this._allocateLine();
   }
 };
 
@@ -171,12 +209,14 @@ Driver.prototype.textSectionCommands = {
   "line-feed": "lineFeed",
   "carriage-return": "carriageReturn",
   "erase-line": "eraseLine",
+  "erase-display": "eraseDisplay",
   "cursor-left": "cursorLeft",
   "cursor-right": "cursorRight",
   "cursor-up": "cursorUp",
   "cursor-down": "cursorDown",
   "move-cursor": "moveCursor",
   "reverse-index": "reverseIndex",
+  "delete-lines": "deleteLines",
 };
 
 Driver.prototype.handleCommand = function(command) {

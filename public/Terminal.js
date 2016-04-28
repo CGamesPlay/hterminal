@@ -54,8 +54,13 @@ export class Section extends React.Component {
         <div className={CSS.htmlSection} dangerouslySetInnerHTML={payload} onClick={this.handleClick.bind(this)} />
       );
     } else {
+      var string = section.toString();
+      if (string[string.length - 1] == "\n") {
+        // Add a whitespace to force the browser to show the last empty line
+        string += " ";
+      }
       return (
-        <div className={CSS.textSection} onClick={this.handleClick.bind(this)}>{section.toString()}</div>
+        <div className={CSS.textSection} onClick={this.handleClick.bind(this)}>{string}</div>
       );
     }
   }
