@@ -12,6 +12,8 @@ html, body, :global(#react-root) {
   padding: 5px;
   font-size: 13px;
   outline: none;
+  font-family: 'Anonymous Pro', monospace;
+  white-space: pre-wrap;
 }
 
 .terminalContents {
@@ -21,8 +23,6 @@ html, body, :global(#react-root) {
 }
 
 .textSection {
-  font-family: 'Anonymous Pro', monospace;
-  white-space: pre-wrap;
 }
 
 .htmlSection {

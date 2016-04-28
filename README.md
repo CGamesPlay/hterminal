@@ -21,6 +21,10 @@ ITerm parity
 ------------
 Shell integration allows you to set marks to jump to output of specific commands, identifies previous directories and allows downloading remote files.
 
+Fish
+----
+I should have a rich text input to type shell commands, and tab should open a rich completion interface. There are many difficulties with this since fish has a very deep readline integration.
+
 HTML Mode
 =========
 

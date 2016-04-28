@@ -27,6 +27,12 @@ module.exports = function middleware(socket, next) {
     }
   });
 
+  socket.on('resize', function(columns, rows) {
+    if (shell) {
+      shell.pty.resize({ columns: columns, rows: rows });
+    }
+  });
+
   socket.on('disconnect', function() {
     if (shell) {
       shell.kill('SIGHUP');

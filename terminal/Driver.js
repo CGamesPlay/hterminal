@@ -29,7 +29,7 @@ TextSection.prototype.output = function(text) {
     if (this.x >= this.width) {
       this.y += 1;
       this.x = 0;
-      this._allocateLine();
+      this._allocateLinesForCursor();
     }
     var nextLine = text.slice(i, i + this.width - this.x);
     this._allocateSpaceOnLine();
@@ -52,9 +52,7 @@ TextSection.prototype.carriageReturn = function() {
 // Move the cursor down, scrolling if necessary.
 TextSection.prototype.lineFeed = function() {
   this.y += 1;
-  if (this.y >= this.lines.length) {
-    this._allocateLine();
-  }
+  this._allocateLinesForCursor();
 };
 
 // Move the cursor back, possibly wrapping around to the previous line.
@@ -132,9 +130,7 @@ TextSection.prototype.moveCursor = function(x, y) {
   y = Math.min(Math.max(1, y), this.height) - 1;
   this.x = x;
   this.y = this._screenTop() + y;
-  while (this.y >= this.lines.length) {
-    this._allocateLine();
-  }
+  this._allocateLinesForCursor();
 };
 
 // Scroll up one line.
@@ -152,17 +148,32 @@ TextSection.prototype.reverseIndex = function() {
   }
 };
 
+// Inserts blank lines after the cursor, moving later lines down.
+TextSection.prototype.insertLines = function(n) {
+    console.log("insert-lines", this.lines);
+    for (var i = 0; i < n; i++) {
+      this.lines.splice(this.y + 1, 0, "");
+    }
+    // Delete any lines below the bottom of the screen.
+    this.lines.splice(this._screenTop() + this.height - 1, n);
+    console.log("after", this.lines);
+}
+
 // Deletes lines after the cursor, moving later lines up.
 TextSection.prototype.deleteLines = function(n) {
   this.lines.splice(this.y, n);
-  if (this.y >= this.lines.length) {
-    this._allocateLine();
-  }
+  this._allocateLinesForCursor();
 };
 
 // Find the y offset of the topmost visible screen line
 TextSection.prototype._screenTop = function() {
   return Math.max(0, this.lines.length - this.height);
+};
+
+TextSection.prototype._allocateLinesForCursor = function() {
+  while (this.y >= this.lines.length) {
+    this._allocateLine();
+  }
 };
 
 TextSection.prototype._allocateLine = function() {
@@ -172,6 +183,16 @@ TextSection.prototype._allocateLine = function() {
 // Allocate space on current line for cursor
 TextSection.prototype._allocateSpaceOnLine = function() {
   this.lines[this.y] += " ".repeat(Math.max(0, this.x - this.lines[this.y].length));
+};
+
+TextSection.prototype.resize = function(width, height) {
+  if (this.width < 1 || this.height < 1) {
+    throw new RangeError("Invalid size for TextSession");
+  }
+  // TODO - store these but don't actually *do* the reflow until toString gets
+  // called. This will be faster once infinite scrolling is implemented.
+  this.width = width;
+  this.height = height;
 };
 
 TextSection.prototype.toString = function() {
@@ -197,6 +218,16 @@ Driver.prototype.write = function(output) {
   this.decoder.write(output, this.handleCommand.bind(this));
 };
 
+Driver.prototype.resize = function(columns, rows) {
+  this.width = columns;
+  this.height = rows;
+  this.sections.forEach((s) => {
+    if (s instanceof TextSection) {
+      s.resize(columns, rows);
+    }
+  });
+};
+
 Driver.prototype.handleExit = function(code, signal) {
   console.log("exited with", code, signal);
   this.decoder.end().forEach(this.handleCommand.bind(this));
@@ -216,6 +247,7 @@ Driver.prototype.textSectionCommands = {
   "cursor-down": "cursorDown",
   "move-cursor": "moveCursor",
   "reverse-index": "reverseIndex",
+  "insert-lines": "insertLines",
   "delete-lines": "deleteLines",
 };
 
@@ -232,9 +264,8 @@ Driver.prototype.handleCommand = function(command) {
     this.htmlInsertNewSection(arguments[1]);
   } else if (command == 'set-title') {
     document.title = arguments[1];
-  } else if (command == 'report-status') {
-    // Always reply with CSI 0 n
-    this.emit('input', TerminalDecoder.CSI + "0n");
+  } else if (command == 'send-report') {
+    this.emit('input', arguments[1]);
   } else if (command != 'style') {
     console.log.apply(console, arguments);
   }

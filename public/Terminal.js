@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import BottomScroller from './BottomScroller';
 import CSS from './Terminal.css';
@@ -90,12 +91,17 @@ export default class Terminal extends React.Component {
     this.refs.container.addEventListener('keydown', this.handleKeyEvent.bind(this), false);
     this.refs.container.addEventListener('keypress', this.handleKeyEvent.bind(this), false);
     this.refs.container.focus();
+    this.calculateWindowSize();
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.driver !== this.props.driver) {
       newProps.driver.on('output', this.delayUpdate);
     }
+  }
+
+  componentDidUpdate() {
+    this.calculateWindowSize();
   }
 
   render() {
@@ -131,4 +137,46 @@ export default class Terminal extends React.Component {
   delayUpdate() {
     this.forceUpdate();
   }
+
+  calculateFontSize() {
+    var currentStyle = window.getComputedStyle(this.refs.container);
+    var styleKey = currentStyle.fontFamily + ":" + currentStyle.fontSize;
+    if (this.styleKey != styleKey) {
+      var el = document.createElement("SPAN");
+      el.innerHTML = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      this.refs.container.appendChild(el);
+      this.fontMetrics = [ el.offsetWidth / 26, el.offsetHeight ];
+      this.refs.container.removeChild(el);
+      this.styleKey = styleKey;
+    }
+    return this.fontMetrics;
+  }
+
+  calculateWindowSize() {
+    var fontMetrics = this.calculateFontSize();
+    var clientNode = ReactDOM.findDOMNode(this);
+    var clientWidth = clientNode.clientWidth - this.props.minimumPadding * 2;
+    var clientHeight = clientNode.clientHeight - this.props.minimumPadding * 2;
+
+    var columns = Math.floor(clientWidth / fontMetrics[0]);
+    var rows = Math.floor(clientHeight / fontMetrics[1]);
+
+    this.paddingX = clientNode.clientWidth % fontMetrics[0];
+    this.paddingY = clientNode.clientHeight % fontMetrics[1];
+    clientNode.style.paddingLeft =
+      clientNode.style.paddingRight =
+      this.props.minimumPadding + this.paddingX / 2 + "px";
+    clientNode.style.paddingTop =
+      clientNode.style.paddingBottom =
+      this.props.minimumPadding + this.paddingY / 2 + "px";
+
+    if ((columns != this.props.initialColumns || rows != this.props.initialRows) && this.props.onResize) {
+      this.props.onResize(columns, rows);
+    }
+  }
+}
+
+Terminal.defaultProps = {
+  // Default padding around each edge
+  minimumPadding: 5,
 }
