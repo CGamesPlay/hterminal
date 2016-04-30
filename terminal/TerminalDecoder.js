@@ -95,10 +95,10 @@ TerminalDecoder.prototype = {
         var ret = this.readOSC(buffer.slice(2), cb);
         return ret <= 0 ? ret : ret + 2;
       } else if (buffer[1] == '=') {
-        cb('keypad-mode', true);
+        cb('set-keypad-mode', true);
         return 2;
       } else if (buffer[1] == '>') {
-        cb('keypad-mode', false);
+        cb('set-keypad-mode', false);
         return 2;
       } else if (buffer[1] == '(') {
         if (buffer.length == 2) {

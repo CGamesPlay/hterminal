@@ -9,6 +9,9 @@ function connectDriver(driver) {
   socket.on('connect', driver.handleConnect.bind(driver));
   socket.on('output', driver.write.bind(driver));
   socket.on('exit', driver.handleExit.bind(driver));
+
+  driver.on('set-title', (t) => document.title = t);
+  driver.on('send-report', (r) => handleInput(r));
 }
 
 function handleInput(data) {
@@ -47,6 +50,10 @@ render();
 if (module.hot) {
   module.hot.accept("../terminal/Driver", function() {
     var NewDriver = require('../terminal/Driver');
+
+    driver.removeAllListeners('set-title');
+    driver.removeAllListeners('send-report');
+
     driver = new NewDriver(known_columns, known_rows);
     connectDriver(driver);
     render();

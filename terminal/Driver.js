@@ -209,6 +209,7 @@ function Driver(width, height) {
   this.decoder = new TerminalDecoder();
   this.width = width;
   this.height = height;
+  this.keypadMode = false;
 }
 util.inherits(Driver, EventEmitter);
 
@@ -251,6 +252,11 @@ Driver.prototype.textSectionCommands = {
   "delete-lines": "deleteLines",
 };
 
+Driver.prototype.passAlongCommands = [
+  'set-title',
+  'send-report',
+];
+
 Driver.prototype.handleCommand = function(command) {
   if (this.textSectionCommands[command]) {
     var section = this.getOrCreateTextSection();
@@ -262,10 +268,10 @@ Driver.prototype.handleCommand = function(command) {
     this.emit('output', this.sections);
   } else if (command == 'insert-html') {
     this.htmlInsertNewSection(arguments[1]);
-  } else if (command == 'set-title') {
-    document.title = arguments[1];
-  } else if (command == 'send-report') {
-    this.emit('input', arguments[1]);
+  } else if (command == 'set-keypad-mode') {
+    this.keypadMode = arguments[1];
+  } else if (this.passAlongCommands.indexOf(command) != -1) {
+    this.emit.apply(this, arguments);
   } else if (command != 'style') {
     console.log.apply(console, arguments);
   }

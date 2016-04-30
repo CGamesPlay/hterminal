@@ -5,7 +5,8 @@ import BottomScroller from './BottomScroller';
 import CSS from './Terminal.css';
 import debounce from './util/debounce';
 
-function inputFromEvent(event) {
+function inputFromEvent(event, keypadMode) {
+  var prefix = keypadMode ? "\x1bO" : "\x1b[";
   if (event.type == "keypress") {
     if (event.metaKey) {
       // Don't process OS shortcuts
@@ -14,9 +15,6 @@ function inputFromEvent(event) {
     let charCode = event.keyCode;
     if (charCode < 16 || charCode == 27) {
       // Pass direct for NL, BS, etc
-    } else if (charCode < 32) {
-      // Modifier key
-      return "";
     } else if (charCode >= 64 && charCode < 91) {
       if (!event.shiftKey) {
         charCode += 32;
@@ -32,6 +30,14 @@ function inputFromEvent(event) {
       return String.fromCharCode(event.keyCode);
     } else if (event.code == "Delete") {
       return String.fromCharCode(127);
+    } else if (event.code == "ArrowUp") {
+      return prefix + "A";
+    } else if (event.code == "ArrowDown") {
+      return prefix + "B";
+    } else if (event.code == "ArrowRight") {
+      return prefix + "C";
+    } else if (event.code == "ArrowDown") {
+      return prefix + "D";
     } else {
       return "";
     }
@@ -96,6 +102,7 @@ export default class Terminal extends React.Component {
 
   componentWillReceiveProps(newProps) {
     if (newProps.driver !== this.props.driver) {
+      this.props.driver.removeListener('output', this.delayUpdate);
       newProps.driver.on('output', this.delayUpdate);
     }
   }
@@ -122,7 +129,7 @@ export default class Terminal extends React.Component {
   }
 
   handleKeyEvent(e) {
-    var input = inputFromEvent(e);
+    var input = inputFromEvent(e, this.props.driver.keypadMode);
     if (input.length > 0) {
       e.preventDefault();
       this.refs.scroller.scrollToBottom();
