@@ -4,6 +4,15 @@ var TerminalDecoder  = require('./TerminalDecoder');
 
 "use strict";
 
+function htmlspecialchars(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+}
+
 function TextSection(width, height) {
   if (!(this instanceof TextSection)) {
     return new TextSection(width, height);
@@ -204,7 +213,7 @@ TextSection.prototype._allocateSpaceOnLine = function() {
 
 TextSection.prototype.resize = function(width, height) {
   if (this.width < 1 || this.height < 1) {
-    throw new RangeError("Invalid size for TextSession");
+    throw new RangeError("Invalid size for TextSection");
   }
   // TODO - store these but don't actually *do* the reflow until toString gets
   // called. This will be faster once infinite scrolling is implemented.
@@ -217,22 +226,21 @@ TextSection.prototype.toString = function() {
 };
 
 TextSection.prototype.toHTML = function() {
-  var html = this.lines.map((l, y) => {
-    var line = l;
-    if (this.x == l.length) {
-      l += "\u00a0";
+  var html = this.lines.map((raw_line, y) => {
+    var encoded = "";
+    if (this.y == y && this.x == raw_line.length) {
+      raw_line += "\u00a0";
     }
-    if (this.y == y) {
-      // Insert caret
-      line =
-        l.slice(0, this.x) + // Before part
-        "<span class=\"caret\">" +
-        l.slice(this.x, this.x + 1) + // Selected character
-        "</span>" +
-        l.slice(this.x + 1); // After part
-
+    for (var x = 0; x < raw_line.length; x++) {
+      if (this.y == y && this.x == x) {
+        encoded += "<span class=\"caret\">";
+      }
+      encoded += htmlspecialchars(raw_line[x]);
+      if (this.y == y && this.x == x) {
+        encoded += "</span>";
+      }
     }
-    return line;
+    return encoded;
   }).join("\n");
 
   if (html[html.length - 1] == "\n") {
