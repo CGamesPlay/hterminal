@@ -199,6 +199,33 @@ TextSection.prototype.toString = function() {
   return this.lines.join("\n");
 };
 
+TextSection.prototype.toHTML = function() {
+  var html = this.lines.map((l, y) => {
+    let line = l;
+    if (this.x == l.length) {
+      l += "\u00a0";
+    }
+    if (this.y == y) {
+      // Insert caret
+      line =
+        l.slice(0, this.x) + // Before part
+        "<span class=\"caret\">" +
+        l.slice(this.x, this.x + 1) + // Selected character
+        "</span>" +
+        l.slice(this.x + 1); // After part
+
+    }
+    return line;
+  }).join("\n");
+
+  if (html[html.length - 1] == "\n") {
+    // If the line ends in a newline, add a space so the line appears in the browser.
+    html += "\u00a0"
+  }
+
+  return { __html: html };
+};
+
 function Driver(width, height) {
   if (!(this instanceof Driver)) {
     return new Driver(width, height);

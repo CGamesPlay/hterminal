@@ -25,6 +25,11 @@ html, body, :global(#react-root) {
 .textSection {
 }
 
+.textSection :global(.caret) {
+  background-color: #444;
+  color: #eee;
+}
+
 .htmlSection {
   font-family: sans-serif;
 }
