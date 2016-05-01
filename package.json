@@ -23,7 +23,7 @@
     "socket.io": "~1.4.5",
     "socket.io-client": "~1.4.5",
     "style-loader": "~0.13.1",
-    "termios": "^0.1.1",
+    "termios": "^0.2.0",
     "webpack": "~1.13.0",
     "webpack-dev-middleware": "~1.6.1",
     "webpack-hot-middleware": "~2.10.0"

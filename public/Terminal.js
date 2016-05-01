@@ -25,10 +25,7 @@ function inputFromEvent(event, keypadMode) {
     }
     return String.fromCharCode(charCode);
   } else if (event.type == "keydown") {
-    if (event.keyCode < 16 || event.keyCode == 27) {
-      // Control characters on a keyboard. Pass through.
-      return String.fromCharCode(event.keyCode);
-    } else if (event.code == "Delete") {
+    if (event.code == "Backspace" || event.code == "Delete") {
       return String.fromCharCode(127);
     } else if (event.code == "ArrowUp") {
       return prefix + "A";
@@ -38,6 +35,9 @@ function inputFromEvent(event, keypadMode) {
       return prefix + "C";
     } else if (event.code == "ArrowLeft") {
       return prefix + "D";
+    } else if (event.keyCode < 16 || event.keyCode == 27) {
+      // Control characters on a keyboard. Pass through.
+      return String.fromCharCode(event.keyCode);
     } else {
       return "";
     }
