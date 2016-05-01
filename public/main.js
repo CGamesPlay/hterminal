@@ -51,6 +51,9 @@ if (module.hot) {
   module.hot.accept("../terminal/Driver", function() {
     var NewDriver = require('../terminal/Driver');
 
+    socket.removeAllListeners('connect');
+    socket.removeAllListeners('output');
+    socket.removeAllListeners('exit');
     driver.removeAllListeners('set-title');
     driver.removeAllListeners('send-report');
 

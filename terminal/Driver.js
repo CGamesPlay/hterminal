@@ -44,6 +44,10 @@ TextSection.prototype.output = function(text) {
   return this;
 };
 
+TextSection.prototype.style = function(style) {
+  // Not implemented
+};
+
 // Move cursor to left margin
 TextSection.prototype.carriageReturn = function() {
   this.x = 0;
@@ -263,6 +267,7 @@ Driver.prototype.handleExit = function(code, signal) {
 
 Driver.prototype.textSectionCommands = {
   "output": "output",
+  "style": "style",
   "backspace": "backspace",
   "tab": "tab",
   "line-feed": "lineFeed",
@@ -299,8 +304,6 @@ Driver.prototype.handleCommand = function(command) {
     this.keypadMode = arguments[1];
   } else if (this.passAlongCommands.indexOf(command) != -1) {
     this.emit.apply(this, arguments);
-  } else if (command != 'style') {
-    console.log.apply(console, arguments);
   }
 };
 

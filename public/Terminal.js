@@ -36,7 +36,7 @@ function inputFromEvent(event, keypadMode) {
       return prefix + "B";
     } else if (event.code == "ArrowRight") {
       return prefix + "C";
-    } else if (event.code == "ArrowDown") {
+    } else if (event.code == "ArrowLeft") {
       return prefix + "D";
     } else {
       return "";
