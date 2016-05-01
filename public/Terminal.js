@@ -164,14 +164,12 @@ export default class Terminal extends React.Component {
     var columns = Math.floor(clientWidth / fontMetrics[0]);
     var rows = Math.floor(clientHeight / fontMetrics[1]);
 
-    this.paddingX = clientNode.clientWidth % fontMetrics[0];
-    this.paddingY = clientNode.clientHeight % fontMetrics[1];
-    clientNode.style.paddingLeft =
-      clientNode.style.paddingRight =
-      this.props.minimumPadding + this.paddingX / 2 + "px";
-    clientNode.style.paddingTop =
-      clientNode.style.paddingBottom =
-      this.props.minimumPadding + this.paddingY / 2 + "px";
+    this.paddingX = clientWidth % fontMetrics[0];
+    this.paddingY = clientHeight % fontMetrics[1];
+    clientNode.style.paddingLeft = Math.floor(this.props.minimumPadding + this.paddingX / 2) + "px";
+    clientNode.style.paddingRight = Math.ceil(this.props.minimumPadding + this.paddingX / 2) + "px";
+    clientNode.style.paddingTop = Math.floor(this.props.minimumPadding + this.paddingY / 2) + "px";
+    clientNode.style.paddingBottom = Math.ceil(this.props.minimumPadding + this.paddingY / 2) + "px";
 
     if ((columns != this.props.initialColumns || rows != this.props.initialRows) && this.props.onResize) {
       this.props.onResize(columns, rows);
@@ -181,5 +179,5 @@ export default class Terminal extends React.Component {
 
 Terminal.defaultProps = {
   // Default padding around each edge
-  minimumPadding: 5,
+  minimumPadding: 3,
 }

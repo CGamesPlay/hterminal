@@ -9,7 +9,6 @@ html, body, :global(#react-root) {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  padding: 5px;
   font-size: 13px;
   outline: none;
   font-family: 'Anonymous Pro', monospace;
