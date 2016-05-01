@@ -134,4 +134,11 @@ describe.only('Driver', function() {
     var result = testTextCell(5, 4, "ab\ncd\nef" + CSI + "2Ag" + CSI + "10Mh");
     expect(result).to.equal("   h");
   });
+
+  it('handles tabs', function() {
+    var result = testTextCell(10, 4, "a\tb\b\b\bc\t");
+    expect(result).to.equal("a     c b");
+    var result = testTextCell(10, 4, "a\t\tb");
+    expect(result).to.equal("a        b");
+  });
 });

@@ -21,6 +21,11 @@ function TextSection(width, height) {
   this.height = height;
   this.x = 0;
   this.y = 0;
+
+  this.tabStops = new Array(Math.floor(this.width / 8));
+  for (var i = 0; i < this.width / 8; i++) {
+    this.tabStops[i] = i * 8;
+  }
 }
 
 TextSection.prototype.output = function(text) {
@@ -70,6 +75,12 @@ TextSection.prototype.backspace = function() {
   } else {
     this.x -= 1;
   }
+};
+
+// Move the cursor to the next tab stop
+TextSection.prototype.tab = function() {
+  var newX = this._tabStopAfter(this.x);
+  this.output(" ".repeat(newX - this.x));
 };
 
 // Erase all characters before the cursor and/or after the cursor.
@@ -154,19 +165,21 @@ TextSection.prototype.reverseIndex = function() {
 
 // Inserts blank lines after the cursor, moving later lines down.
 TextSection.prototype.insertLines = function(n) {
-    console.log("insert-lines", this.lines);
     for (var i = 0; i < n; i++) {
       this.lines.splice(this.y + 1, 0, "");
     }
     // Delete any lines below the bottom of the screen.
     this.lines.splice(this._screenTop() + this.height - 1, n);
-    console.log("after", this.lines);
 }
 
 // Deletes lines after the cursor, moving later lines up.
 TextSection.prototype.deleteLines = function(n) {
   this.lines.splice(this.y, n);
   this._allocateLinesForCursor();
+};
+
+TextSection.prototype._tabStopAfter = function(x) {
+  return this.tabStops.find((x) => x > this.x) || this.width - 1;
 };
 
 // Find the y offset of the topmost visible screen line
@@ -205,7 +218,7 @@ TextSection.prototype.toString = function() {
 
 TextSection.prototype.toHTML = function() {
   var html = this.lines.map((l, y) => {
-    let line = l;
+    var line = l;
     if (this.x == l.length) {
       l += "\u00a0";
     }

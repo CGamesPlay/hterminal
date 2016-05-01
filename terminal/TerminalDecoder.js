@@ -11,7 +11,7 @@ TerminalDecoder.prototype = {
 
     while (buffer.length > 0) {
       // Find the first instance of an escape sequence (or special character)
-      var escape = /\x07|\x08|\x0d|\x0c|\x0a|\x08|\x0b|\x1b/.exec(buffer);
+      var escape = /\x07|\x08|\x09|\x0d|\x0c|\x0a|\x08|\x0b|\x1b/.exec(buffer);
       if (!escape) {
         // No escape in this chunk, emit the entire thing
         cb('output', this.formatPrintable(buffer));
