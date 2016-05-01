@@ -1,4 +1,0 @@
-# Compile with:
-# tic -e xterm-256color-html -o terminfo/ terminfo/xterm-256color-html.txt
-xterm-256color-html|HTerminal,
-  use=xterm-256color,
