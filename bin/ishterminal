@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# This script will return true if the controlling terminal is HTerminal, and
+# false otherwise. This code mostly comes from iTerm2.
+
 # Make sure stdin and stdout are a tty.
 if [ ! -t 0 ] ; then
   exit 1
