@@ -13,6 +13,7 @@ html, body, :global(#react-root) {
   outline: none;
   font-family: 'Anonymous Pro', monospace;
   white-space: pre-wrap;
+  line-height: 13px;
 }
 
 .terminalContents {
@@ -24,7 +25,7 @@ html, body, :global(#react-root) {
 .textSection {
 }
 
-.textSection :global(.caret) {
+.textSection:last-child :global(.caret) {
   background-color: #444;
   color: #eee;
 }

@@ -1,3 +1,5 @@
+var VERSION = require("../package")["version"];
+
 function TerminalDecoder() {
   this.pending = null;
 }
@@ -126,7 +128,27 @@ TerminalDecoder.prototype = {
         codes = m[2].split(';').map(function(x) { return parseInt(x, 10); });
       }
       if (m[1] == "") {
-        if (m[4] == "m") {
+        if (m[4] == "A") {
+          cb('cursor-up', codes[0] || 1);
+        } else if (m[4] == "B") {
+          cb('cursor-down', codes[0] || 1);
+        } else if (m[4] == "C") {
+          cb('cursor-right', codes[0] || 1);
+        } else if (m[4] == "D") {
+          cb('cursor-left', codes[0] || 1);
+        } else if (m[4] == "H") {
+          cb('move-cursor', codes[1] || 1, codes[0] || 1);
+        } else if (m[4] == "J") {
+          cb('erase-display', codes[0] > 0, codes[0] != 1);
+        } else if (m[4] == "K") {
+          cb('erase-line', codes[0] > 0, codes[0] != 1);
+        } else if (m[4] == "L") {
+          cb('insert-lines', codes[0] || 1);
+        } else if (m[4] == "M") {
+          cb('delete-lines', codes[0] || 1);
+        } else if (m[4] == 'g') {
+          cb('clear-tab-stop', codes[0] == 3);
+        } else if (m[4] == "m") {
           var style = {};
           codes.forEach(function(c) {
             switch (c) {
@@ -198,26 +220,8 @@ TerminalDecoder.prototype = {
           cb('style', style);
         } else if (m[4] == "n" && codes[0] == 5) {
           cb('send-report', TerminalDecoder.CSI + "0n");
-        } else if (m[4] == "A") {
-          cb('cursor-up', codes[0] || 1);
-        } else if (m[4] == "B") {
-          cb('cursor-down', codes[0] || 1);
-        } else if (m[4] == "C") {
-          cb('cursor-right', codes[0] || 1);
-        } else if (m[4] == "D") {
-          cb('cursor-left', codes[0] || 1);
-        } else if (m[4] == "H") {
-          cb('move-cursor', codes[1] || 1, codes[0] || 1);
-        } else if (m[4] == "J") {
-          cb('erase-display', codes[0] > 0, codes[0] != 1);
-        } else if (m[4] == "K") {
-          cb('erase-line', codes[0] > 0, codes[0] != 1);
-        } else if (m[4] == "L") {
-          cb('insert-lines', codes[0] || 1);
-        } else if (m[4] == "M") {
-          cb('delete-lines', codes[0] || 1);
-        } else if (m[4] == 'g') {
-          cb('clear-tab-stop', codes[0] == 3);
+        } else if (m[4] == "n" && codes[0] == 1866) {
+          cb('send-report', TerminalDecoder.CSI + "HT " + VERSION + "n");
         } else if (m[4] == 'r') {
           cb('set-scroll-region', codes[0], codes[1]);
         } else {

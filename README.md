@@ -36,14 +36,21 @@ The grammar for HTML escape codes follows:
 
 ```
 wrapped-command = osc "1866;" command terminator
+identify = csi "1866n"
 osc = "\x1b]"
 terminator = "\x07" | "\x1b\\"
+csi = "\x1b["
 
 command = insert-html
 insert-html = "0;" document
 ```
 
 A description of the effect of the commands follows:
+
+identify
+--------
+
+Send version information. HTerminal will respond with CSI "HT " followed by the HTerminal version, followed by "n".
 
 insert-html
 -----------

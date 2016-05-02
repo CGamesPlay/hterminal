@@ -1,13 +1,15 @@
-begin
-  set -l hterminal_root (dirname (dirname (dirname (status -f))))
+function __htfish_init
+  set -l hterminal_root (dirname (dirname (dirname (dirname (status -f)))))/bin
   set CSI \e\[
   set OSC \e\]
 
   # Add our wrapper functions to the PATH
-  set -g fish_user_paths $hterminal_root/bin $fish_user_paths
+  set -g fish_user_paths $hterminal_root $fish_user_paths
+
+  if not ishterminal; return; end
 
   function htfish_html_printf
-    printf $OSC"1866;0;"$argv[1]"\a" $argv[2..-1]
+    printf "\e]1866;0;"$argv[1]"\a" $argv[2..-1]
   end
 
   function fish_prompt
@@ -28,19 +30,9 @@ begin
       (date "+%x %I:%M %p") \
       $pwd_link \
       $git_info
-    # We write a device status report escape to cause the terminal to respond
-    # with CSI 0 n. This will be used as a binding to break out of Fish's
-    # readline function.
-    echo -n $CSI"5n"
-  end
-
-  function htfish_read_line
-    head -n 1 | read newcommand
-    commandline -r $newcommand
-    commandline -f execute
-  end
-
-  function fish_user_key_bindings
-    bind $CSI"0n" htfish_read_line
+    echo "\$ "
   end
 end
+# fish_color_unused
+
+__htfish_init

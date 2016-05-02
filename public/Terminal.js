@@ -86,6 +86,7 @@ export default class Terminal extends React.Component {
   constructor(props) {
     super(props);
     this.delayUpdate = debounce(this.delayUpdate.bind(this), 10);
+    this.delayResize = debounce(this.calculateWindowSize.bind(this), 100);
   }
 
   componentDidMount() {
@@ -93,7 +94,9 @@ export default class Terminal extends React.Component {
     this.refs.container.addEventListener('keydown', this.handleKeyEvent.bind(this), false);
     this.refs.container.addEventListener('keypress', this.handleKeyEvent.bind(this), false);
     this.refs.container.focus();
+
     this.calculateWindowSize();
+    window.addEventListener('resize', this.delayResize, false);
   }
 
   componentWillReceiveProps(newProps) {
