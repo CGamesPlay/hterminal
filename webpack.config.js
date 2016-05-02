@@ -3,26 +3,21 @@ var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-module.exports = {
+process.env.NODE_ENV = process.env.NODE_ENV || "production";
+
+var baseConfig = {
   devtool: 'eval-source-map',
-  entry: [
-    path.join(__dirname, 'public/main.js'),
-    'webpack-hot-middleware/client?reload=true',
-  ],
+  entry: [ path.join(__dirname, 'public/main.js') ],
   output: {
     path: path.join(__dirname, '/dist/'),
     filename: '[name].js'
   },
-  devtool: 'eval-source-map',
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
     new HtmlWebpackPlugin({ title: "HTerminal" }),
     //new ExtractTextPlugin('styles.css'),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('development')
-    })
+    new webpack.EnvironmentPlugin([ "NODE_ENV" ]),
   ],
   module: {
     loaders: [{
@@ -39,3 +34,10 @@ module.exports = {
     }]
   }
 };
+
+if (process.env.NODE_ENV === "development") {
+  baseConfig.entry.push('webpack-hot-middleware/client?reload=true');
+  baseConfig.plugins.push(webpack.HotModuleReplacementPlugin());
+}
+
+module.exports = baseConfig;

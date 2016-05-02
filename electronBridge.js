@@ -1,3 +1,4 @@
+var ipcMain = require('electron').ipcMain;
 var child_pty = require('child_pty');
 var termios = require('termios');
 
@@ -5,7 +6,7 @@ function ctrlKey(c) {
   return c.charCodeAt(0) - 64;
 }
 
-module.exports = function middleware(socket, next) {
+exports.connect = function(webContents) {
   var shell = child_pty.spawn('login', [ '-p', '-f', process.env["USER"] ], {
     cwd: process.env.HOME,
     env: {
@@ -62,31 +63,36 @@ module.exports = function middleware(socket, next) {
 
   shell.pty.setEncoding('utf8');
   shell.pty.on('data', function(data) {
-    socket.emit('output', data);
+    if (webContents) {
+      webContents.send('output', data);
+    }
   });
 
   shell.on('exit', function(code, signal) {
-    socket.emit('exit', code, signal);
+    if (webContents) {
+      webContents.send('exit', code, signal);
+    }
     shell = null;
   });
 
-  socket.on('data', function(message) {
+  ipcMain.on('data', function(event, message) {
     if (shell) {
       shell.pty.write(message);
     }
   });
 
-  socket.on('resize', function(columns, rows) {
+  ipcMain.on('resize', function(event, columns, rows) {
     if (shell) {
       shell.pty.resize({ columns: columns, rows: rows });
     }
   });
 
-  socket.on('disconnect', function() {
+  webContents.on('destroyed', function(event) {
+    webContents = null;
     if (shell) {
       shell.kill('SIGHUP');
     }
   });
 
-  next();
+  webContents.send('connected');
 }

@@ -1,7 +1,12 @@
 {
+  "name": "hterminal",
   "version": "1.0.0",
+  "description": "A terminal with support for rich user interfaces",
+  "main": "main.js",
   "scripts": {
-    "develop": "gulp develop"
+    "electron": "webpack --config webpack.config.electron && electron main.js",
+    "develop": "gulp develop",
+    "install": "electron-rebuild"
   },
   "dependencies": {
     "babel-core": "~6.7.7",
@@ -16,6 +21,7 @@
     "gulp": "~3.9.1",
     "gulp-develop-server": "~0.5.1",
     "html-webpack-plugin": "~2.16.0",
+    "json-loader": "^0.5.4",
     "mocha": "^2.4.5",
     "react": "~15.0.1",
     "react-addons-pure-render-mixin": "^15.0.1",
@@ -28,5 +34,9 @@
     "webpack": "~1.13.0",
     "webpack-dev-middleware": "~1.6.1",
     "webpack-hot-middleware": "~2.10.0"
+  },
+  "devDependencies": {
+    "electron-prebuilt": "^0.37.8",
+    "electron-rebuild": "^1.1.3"
   }
 }

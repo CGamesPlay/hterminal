@@ -265,8 +265,6 @@ function Driver(width, height) {
 }
 util.inherits(Driver, EventEmitter);
 
-Driver.prototype.handleConnect = function() { };
-
 Driver.prototype.write = function(output) {
   this.decoder.write(output, this.handleCommand.bind(this));
 };
