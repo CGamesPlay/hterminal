@@ -1,6 +1,5 @@
 var ipcMain = require('electron').ipcMain;
 var child_pty = require('child_pty');
-var termios = require('termios');
 
 function ctrlKey(c) {
   return c.charCodeAt(0) - 64;

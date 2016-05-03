@@ -62,3 +62,19 @@ Troubleshooting
 ===============
 
 - HTML prompt not displaying. Fish needs to be at least version 2.2.0 or else it will decide the prompt is too long and not display it.
+
+Recommended reading
+===================
+
+- http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+- http://www.asciitable.com/
+
+Distribution
+============
+
+There are 4 targets available:
+
+- web / production - optimized socket.io client and matching server
+- web / debug - hot-reloading socket.io client and matching server
+- app / production - optimized electron app
+- app / debug - hot-reloading electron app

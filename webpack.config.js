@@ -16,7 +16,7 @@ var baseConfig = {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
     new HtmlWebpackPlugin({ title: "HTerminal" }),
-    //new ExtractTextPlugin('styles.css'),
+    new ExtractTextPlugin('styles.css'),
     new webpack.EnvironmentPlugin([ "NODE_ENV" ]),
   ],
   module: {
@@ -29,7 +29,7 @@ var baseConfig = {
       loader: 'json'
     }, {
       test: /\.css$/,
-      //loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules'),
+      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules'),
       loaders: [ 'style-loader', 'css-loader?modules' ],
     }]
   }
