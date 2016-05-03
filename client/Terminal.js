@@ -119,7 +119,7 @@ export default class Terminal extends React.Component {
         onExecute={this.handleExecute.bind(this)} />
     );
     return (
-      <div ref="container" className={CSS.terminal} tabIndex={-1}>
+      <div ref="container" className={CSS.terminal} tabIndex={-1} onPaste={this.handlePaste.bind(this)}>
         <BottomScroller ref="scroller" className={CSS.terminalContents}>
           {sections}
         </BottomScroller>
@@ -133,6 +133,15 @@ export default class Terminal extends React.Component {
       e.preventDefault();
       this.refs.scroller.scrollToBottom();
       this.props.onInput(input);
+    }
+  }
+
+  handlePaste(e) {
+    if (e.clipboardData.types.indexOf("text/plain") != -1) {
+      let pasted = e.clipboardData.getData("text/plain");
+      e.preventDefault();
+      this.refs.scroller.scrollToBottom();
+      this.props.onInput(pasted);
     }
   }
 
