@@ -1,5 +1,6 @@
 var ipcMain = require('electron').ipcMain;
 var child_pty = require('child_pty');
+var path = require('path');
 
 function ctrlKey(c) {
   return c.charCodeAt(0) - 64;
@@ -8,9 +9,10 @@ function ctrlKey(c) {
 exports.connect = function(webContents) {
   var shell = child_pty.spawn('login', [ '-p', '-f', process.env["USER"] ], {
     cwd: process.env.HOME,
-    env: {
+    env: Object.assign({}, process.env, {
       TERM: "xterm-256color",
-    },
+      HTERMINAL_ROOT: path.resolve(__dirname + "/.."),
+    }),
     iflag: {
       ICRNL: true,
       IXON: true,
