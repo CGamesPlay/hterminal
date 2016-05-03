@@ -251,9 +251,9 @@ TextSection.prototype.toHTML = function() {
   return { __html: html };
 };
 
-function Driver(width, height) {
-  if (!(this instanceof Driver)) {
-    return new Driver(width, height);
+function TerminalDriver(width, height) {
+  if (!(this instanceof TerminalDriver)) {
+    return new TerminalDriver(width, height);
   }
   EventEmitter.call(this);
 
@@ -263,13 +263,13 @@ function Driver(width, height) {
   this.height = height;
   this.keypadMode = false;
 }
-util.inherits(Driver, EventEmitter);
+util.inherits(TerminalDriver, EventEmitter);
 
-Driver.prototype.write = function(output) {
+TerminalDriver.prototype.write = function(output) {
   this.decoder.write(output, this.handleCommand.bind(this));
 };
 
-Driver.prototype.resize = function(columns, rows) {
+TerminalDriver.prototype.resize = function(columns, rows) {
   this.width = columns;
   this.height = rows;
   this.sections.forEach((s) => {
@@ -279,12 +279,12 @@ Driver.prototype.resize = function(columns, rows) {
   });
 };
 
-Driver.prototype.handleExit = function(code, signal) {
+TerminalDriver.prototype.handleExit = function(code, signal) {
   console.log("exited with", code, signal);
   this.decoder.end().forEach(this.handleCommand.bind(this));
 };
 
-Driver.prototype.textSectionCommands = {
+TerminalDriver.prototype.textSectionCommands = {
   "output": "output",
   "style": "style",
   "backspace": "backspace",
@@ -303,12 +303,12 @@ Driver.prototype.textSectionCommands = {
   "delete-lines": "deleteLines",
 };
 
-Driver.prototype.passAlongCommands = [
+TerminalDriver.prototype.passAlongCommands = [
   'set-title',
   'send-report',
 ];
 
-Driver.prototype.handleCommand = function(command) {
+TerminalDriver.prototype.handleCommand = function(command) {
   if (this.textSectionCommands[command]) {
     var section = this.getOrCreateTextSection();
     var funcName = this.textSectionCommands[command];
@@ -326,7 +326,7 @@ Driver.prototype.handleCommand = function(command) {
   }
 };
 
-Driver.prototype.getOrCreateTextSection = function() {
+TerminalDriver.prototype.getOrCreateTextSection = function() {
   var current_section = this.sections[this.sections.length - 1];
   if (current_section && current_section instanceof TextSection) {
     return current_section;
@@ -337,9 +337,9 @@ Driver.prototype.getOrCreateTextSection = function() {
   }
 }
 
-Driver.prototype.htmlInsertNewSection = function(html) {
+TerminalDriver.prototype.htmlInsertNewSection = function(html) {
   this.sections.push({ type: "html", content: html });
   this.emit('output', this.sections);
 };
 
-module.exports = Driver;
+module.exports = TerminalDriver;

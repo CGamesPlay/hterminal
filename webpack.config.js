@@ -7,9 +7,9 @@ process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 var baseConfig = {
   devtool: 'eval-source-map',
-  entry: [ path.join(__dirname, 'public/main.js') ],
+  entry: [ path.join(__dirname, 'client/socket.js') ],
   output: {
-    path: path.join(__dirname, '/dist/'),
+    path: path.join(__dirname, '/dist/client'),
     filename: '[name].js'
   },
   plugins: [

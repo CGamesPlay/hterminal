@@ -1,12 +1,12 @@
-var Driver = require('../terminal/Driver');
-var TerminalDecoder = require('../terminal/TerminalDecoder');
+var TerminalDriver = require('../client/TerminalDriver');
+var TerminalDecoder = require('../client/TerminalDecoder');
 var expect = require('chai').expect;
 
 var CSI = TerminalDecoder.CSI;
 
-describe.only('Driver', function() {
+describe.only('TerminalDriver', function() {
   function testTextCell(width, height, lines) {
-    var driver = new Driver(width, height);
+    var driver = new TerminalDriver(width, height);
     if (typeof lines == "string") {
       driver.write(lines);
     } else {

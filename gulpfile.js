@@ -3,7 +3,7 @@ var server = require("gulp-develop-server");
 
 gulp.task("develop", function() {
     server.listen({
-      path: "./app.js",
+      path: "./server/web.js",
       env: { NODE_ENV: "development" },
     });
     gulp.watch([ "./*.js" ], server.restart);

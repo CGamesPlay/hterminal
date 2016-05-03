@@ -5,7 +5,7 @@ var webpackDevMiddleware = require('webpack-dev-middleware');
 var webpackHotMiddleware = require("webpack-hot-middleware");
 var http = require('http');
 var socketIO = require('socket.io');
-var config = require('./webpack.config.js');
+var config = require('../webpack.config.js');
 var socketBridge = require('./socketBridge.js');
 
 var isDevelopment = process.env.NODE_ENV == "development";
@@ -19,7 +19,7 @@ io.use(socketBridge);
 if (isDevelopment) {
   const compiler = webpack(config);
   const middleware = webpackDevMiddleware(compiler, {
-    contentBase: 'public',
+    contentBase: 'client',
     stats: {
       colors: true,
       hash: false,
