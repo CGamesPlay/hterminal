@@ -3,7 +3,7 @@ var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-process.env.NODE_ENV = process.env.NODE_ENV || "production";
+process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 var baseConfig = {
   devtool: 'eval-source-map',
@@ -37,7 +37,7 @@ var baseConfig = {
 
 if (process.env.NODE_ENV === "development") {
   baseConfig.entry.push('webpack-hot-middleware/client?reload=true');
-  baseConfig.plugins.push(webpack.HotModuleReplacementPlugin());
+  baseConfig.plugins.push(new webpack.HotModuleReplacementPlugin());
 }
 
 module.exports = baseConfig;
