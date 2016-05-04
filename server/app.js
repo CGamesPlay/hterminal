@@ -1,13 +1,13 @@
 var app = require('electron').app;
 var BrowserWindow = require('electron').BrowserWindow;
 var Menu = require('electron').Menu;
-var electronBridge = require('./electronBridge');
+var ElectronWindow = require('./ElectronWindow');
 
 function createWindow() {
   var window = new BrowserWindow({ width: 800, height: 600 });
   window.loadURL("file://" + __dirname + "/../client/index.html");
   window.webContents.on('did-finish-load', function() {
-    electronBridge.connect(window.webContents);
+    new ElectronWindow(window.webContents);
   });
 }
 

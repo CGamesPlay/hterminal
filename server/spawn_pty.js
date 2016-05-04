@@ -1,4 +1,3 @@
-var ipcMain = require('electron').ipcMain;
 var child_pty = require('child_pty');
 var path = require('path');
 
@@ -6,7 +5,7 @@ function ctrlKey(c) {
   return c.charCodeAt(0) - 64;
 }
 
-exports.connect = function(webContents) {
+module.exports = function() {
   var shell = child_pty.spawn('login', [ '-p', '-f', process.env["USER"] ], {
     cwd: process.env.HOME,
     env: Object.assign({}, process.env, {
@@ -61,47 +60,5 @@ exports.connect = function(webContents) {
       VSTATUS: ctrlKey('T'),
     },
   });
-
-  shell.pty.setEncoding('utf8');
-  shell.pty.on('data', function(data) {
-    if (webContents) {
-      webContents.send('output', data);
-    }
-  });
-
-  shell.on('exit', function(code, signal) {
-    if (webContents) {
-      webContents.send('exit', code, signal);
-    }
-    shell = null;
-  });
-
-  webContents.on('hterminal:data', function(event, message) {
-    if (shell) {
-      shell.pty.write(message);
-    }
-  });
-
-  webContents.on('hterminal:resize', function(event, columns, rows) {
-    if (shell) {
-      shell.pty.resize({ columns: columns, rows: rows });
-    }
-  });
-
-  webContents.on('destroyed', function(event) {
-    webContents = null;
-    if (shell) {
-      shell.kill('SIGHUP');
-    }
-  });
-
-  webContents.send('connected');
-}
-
-ipcMain.on('data', function(event) {
-  event.sender.emit.apply(event.sender, [ "hterminal:data" ].concat(Array.prototype.slice.call(arguments)));
-});
-
-ipcMain.on('resize', function(event) {
-  event.sender.emit.apply(event.sender, [ "hterminal:resize" ].concat(Array.prototype.slice.call(arguments)));
-});
+  return shell;
+};
