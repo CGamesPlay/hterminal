@@ -76,13 +76,13 @@ exports.connect = function(webContents) {
     shell = null;
   });
 
-  ipcMain.on('data', function(event, message) {
+  webContents.on('hterminal:data', function(event, message) {
     if (shell) {
       shell.pty.write(message);
     }
   });
 
-  ipcMain.on('resize', function(event, columns, rows) {
+  webContents.on('hterminal:resize', function(event, columns, rows) {
     if (shell) {
       shell.pty.resize({ columns: columns, rows: rows });
     }
@@ -97,3 +97,11 @@ exports.connect = function(webContents) {
 
   webContents.send('connected');
 }
+
+ipcMain.on('data', function(event) {
+  event.sender.emit.apply(event.sender, [ "hterminal:data" ].concat(Array.prototype.slice.call(arguments)));
+});
+
+ipcMain.on('resize', function(event) {
+  event.sender.emit.apply(event.sender, [ "hterminal:resize" ].concat(Array.prototype.slice.call(arguments)));
+});
