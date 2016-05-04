@@ -187,6 +187,12 @@ TextSection.prototype.deleteLines = function(n) {
   this._allocateLinesForCursor();
 };
 
+TextSection.prototype.userInitiatedClear = function() {
+  // Clear all lines from the display, leaving only the line with the cursor.
+  this.lines = this.lines.slice(this.y, this.y + 1);
+  this.y = 0;
+};
+
 TextSection.prototype._tabStopAfter = function(x) {
   return this.tabStops.find((x) => x > this.x) || this.width - 1;
 };
@@ -267,6 +273,15 @@ util.inherits(TerminalDriver, EventEmitter);
 
 TerminalDriver.prototype.write = function(output) {
   this.decoder.write(output, this.handleCommand.bind(this));
+};
+
+// User initiated screen clear
+TerminalDriver.prototype.clear = function() {
+  this.sections = this.sections.slice(-1);
+  if (this.sections[0] instanceof TextSection) {
+    this.sections[0].userInitiatedClear();
+  }
+  this.emit('output', this.sections);
 };
 
 TerminalDriver.prototype.resize = function(columns, rows) {

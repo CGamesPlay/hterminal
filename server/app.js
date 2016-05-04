@@ -11,6 +11,13 @@ function createWindow() {
   });
 }
 
+function handleClear(item, focusedWindow) {
+  var window = ElectronWindow.fromWebContents(focusedWindow.webContents);
+  if (window) {
+    window.clear();
+  }
+}
+
 app.on('ready', function() {
   // Create the Application's main menu
   var template = [
@@ -43,7 +50,9 @@ app.on('ready', function() {
         { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
         { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
         { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
-        { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectall" }
+        { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectall" },
+        { type: "separator" },
+        { label: "Clear", accelerator: "CmdOrCtrl+K", click: handleClear },
       ]
     }, {
       label: 'View',

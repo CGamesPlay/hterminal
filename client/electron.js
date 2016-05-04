@@ -10,6 +10,7 @@ function connectDriver(driver) {
     ipcRenderer.send('resize', known_columns, known_rows);
   });
   ipcRenderer.on('output', (event, data) => driver.write(data));
+  ipcRenderer.on('clear', (event) => driver.clear());
   ipcRenderer.on('exit', (event, code, signal) => driver.handleExit(code, signal));
 
   driver.on('set-title', (t) => document.title = t);

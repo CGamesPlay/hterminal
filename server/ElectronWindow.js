@@ -64,6 +64,12 @@ ElectronWindow.prototype = {
       shell.kill('SIGHUP');
     }
   },
+
+  clear: function() {
+    if (this.webContents) {
+      this.webContents.send('clear');
+    }
+  },
 };
 
 module.exports = ElectronWindow;
