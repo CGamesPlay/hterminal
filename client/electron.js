@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Terminal from './Terminal';
 import TerminalDriver from './TerminalDriver';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, webFrame } from 'electron';
+
+webFrame.setZoomLevelLimits(1, 1);
 
 function connectDriver(driver) {
   ipcRenderer.on('connected', (event) => {
