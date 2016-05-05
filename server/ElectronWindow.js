@@ -61,7 +61,7 @@ ElectronWindow.prototype = {
   handleWindowClosed: function(event) {
     this.webContents = null;
     if (this.shell) {
-      shell.kill('SIGHUP');
+      this.shell.kill('SIGHUP');
     }
   },
 
