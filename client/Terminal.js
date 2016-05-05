@@ -7,11 +7,12 @@ import debounce from './util/debounce';
 
 function inputFromEvent(event, keypadMode) {
   var prefix = keypadMode ? "\x1bO" : "\x1b[";
+  let input = "";
+  if (event.metaKey) {
+    // Don't process OS shortcuts
+    return "";
+  }
   if (event.type == "keypress") {
-    if (event.metaKey) {
-      // Don't process OS shortcuts
-      return "";
-    }
     let charCode = event.keyCode;
     if (charCode < 16 || charCode == 27) {
       // Pass direct for NL, BS, etc
@@ -23,27 +24,27 @@ function inputFromEvent(event, keypadMode) {
         charCode -= 96;
       }
     }
-    return String.fromCharCode(charCode);
+    input = String.fromCharCode(charCode);
   } else if (event.type == "keydown") {
     if (event.code == "Backspace" || event.code == "Delete") {
-      return String.fromCharCode(127);
+      input = String.fromCharCode(127);
     } else if (event.code == "ArrowUp") {
-      return prefix + "A";
+      input = prefix + "A";
     } else if (event.code == "ArrowDown") {
-      return prefix + "B";
+      input = prefix + "B";
     } else if (event.code == "ArrowRight") {
-      return prefix + "C";
+      input = prefix + "C";
     } else if (event.code == "ArrowLeft") {
-      return prefix + "D";
+      input = prefix + "D";
     } else if (event.keyCode < 16 || event.keyCode == 27) {
       // Control characters on a keyboard. Pass through.
-      return String.fromCharCode(event.keyCode);
-    } else {
-      return "";
+      input = String.fromCharCode(event.keyCode);
     }
-  } else {
-    return "";
+    if (event.altKey && input.length > 0) {
+      input = String.fromCharCode(27) + input;
+    }
   }
+  return input;
 }
 
 export class Section extends React.Component {
