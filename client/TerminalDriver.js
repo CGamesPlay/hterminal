@@ -295,8 +295,8 @@ TerminalDriver.prototype.resize = function(columns, rows) {
 };
 
 TerminalDriver.prototype.handleExit = function(code, signal) {
-  console.log("exited with", code, signal);
   this.decoder.end().forEach(this.handleCommand.bind(this));
+  this.emit('exit', code, signal);
 };
 
 TerminalDriver.prototype.textSectionCommands = {

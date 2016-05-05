@@ -85,12 +85,15 @@ export class Section extends React.Component {
 export default class Terminal extends React.Component {
   constructor(props) {
     super(props);
+    // These methods need to be bound because they are used to add/remove event
+    // listeners
     this.delayUpdate = debounce(this.delayUpdate.bind(this), 10);
     this.delayResize = debounce(this.calculateWindowSize.bind(this), 100);
+    this.handleExit = this.handleExit.bind(this);
   }
 
   componentDidMount() {
-    this.props.driver.on('output', this.delayUpdate);
+    this.addListenersToDriver(this.props.driver);
     this.refs.container.addEventListener('keydown', this.handleKeyEvent.bind(this), false);
     this.refs.container.addEventListener('keypress', this.handleKeyEvent.bind(this), false);
     this.refs.container.focus();
@@ -101,9 +104,19 @@ export default class Terminal extends React.Component {
 
   componentWillReceiveProps(newProps) {
     if (newProps.driver !== this.props.driver) {
-      this.props.driver.removeListener('output', this.delayUpdate);
-      newProps.driver.on('output', this.delayUpdate);
+      this.removeListenersFromDriver(this.props.driver);
+      this.addListenersToDriver(newProps.driver);
     }
+  }
+
+  addListenersToDriver(driver) {
+    driver.on('output', this.delayUpdate);
+    driver.on('exit', this.handleExit);
+  }
+
+  removeListenersFromDriver(driver) {
+    driver.removeListener('output', this.delayUpdate);
+    driver.removeListener('exit', this.handleExit);
   }
 
   componentDidUpdate() {
@@ -147,6 +160,10 @@ export default class Terminal extends React.Component {
 
   handleExecute(command) {
     this.props.onInput(command + "\r");
+  }
+
+  handleExit(code, status) {
+    window.close();
   }
 
   delayUpdate() {
