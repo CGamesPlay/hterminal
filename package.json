@@ -5,9 +5,8 @@
   "license": "MIT",
   "main": "server/app.js",
   "scripts": {
-    "electron": "webpack --config webpack.config.electron && electron server/app.js",
-    "develop": "gulp develop",
-    "build": "electron-packager ./ --platform=darwin --arch=x64 --overwrite"
+    "develop-web": "gulp develop-web",
+    "develop-app": "gulp develop-app"
   },
   "dependencies": {
     "child_pty": "CGamesPlay/child_pty"
@@ -19,6 +18,7 @@
     "babel-preset-react": "~6.5.0",
     "chai": "^3.5.0",
     "css-loader": "~0.23.1",
+    "electron-connect": "^0.3.9",
     "electron-packager": "^7.0.1",
     "electron-prebuilt": "^0.37.8",
     "electron-rebuild": "^1.1.3",

@@ -16,7 +16,6 @@ var baseConfig = {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
     new HtmlWebpackPlugin({ title: "HTerminal" }),
-    new ExtractTextPlugin('styles.css'),
     new webpack.EnvironmentPlugin([ "NODE_ENV" ]),
   ],
   module: {
@@ -29,7 +28,6 @@ var baseConfig = {
       loader: 'json'
     }, {
       test: /\.css$/,
-      loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules'),
       loaders: [ 'style-loader', 'css-loader?modules' ],
     }]
   }
@@ -38,6 +36,11 @@ var baseConfig = {
 if (process.env.NODE_ENV === "development") {
   baseConfig.entry.push('webpack-hot-middleware/client?reload=true');
   baseConfig.plugins.push(new webpack.HotModuleReplacementPlugin());
+} else {
+  baseConfig.plugins.push(new ExtractTextPlugin("styles.css"));
+  cssLoader = baseConfig.module.loaders.find((c) => "styles.css".match(c.test))
+  cssLoader.loader = ExtractTextPlugin.extract.apply(ExtractTextPlugin, cssLoader.loaders);
+  cssLoader.loaders = null;
 }
 
 module.exports = baseConfig;

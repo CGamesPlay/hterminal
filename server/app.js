@@ -3,11 +3,31 @@ var BrowserWindow = require('electron').BrowserWindow;
 var Menu = require('electron').Menu;
 var ElectronWindow = require('./ElectronWindow');
 
+var __root;
+function getRoot(cb) {
+  var isDevelopment = process.env.NODE_ENV == "development";
+  if (__root) {
+    cb(__root);
+    return;
+  }
+  if (isDevelopment) {
+    require('./app.debug')(function(root) {
+      __root = root;
+      cb(__root);
+    });
+  } else {
+    __root = "file://" + __dirname + "/../client/index.html";
+    cb(__root);
+  }
+}
+
 function createWindow() {
-  var window = new BrowserWindow({ width: 800, height: 600 });
-  window.loadURL("file://" + __dirname + "/../client/index.html");
-  window.webContents.on('did-finish-load', function() {
-    new ElectronWindow(window.webContents);
+  getRoot(function(root) {
+    var window = new BrowserWindow({ width: 800, height: 600 });
+    window.loadURL(root);
+    window.webContents.on('did-finish-load', function() {
+      new ElectronWindow(window.webContents);
+    });
   });
 }
 
