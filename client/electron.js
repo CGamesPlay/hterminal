@@ -3,15 +3,27 @@ import ReactDOM from 'react-dom';
 import Terminal from './Terminal';
 import TerminalDriver from './TerminalDriver';
 import { ipcRenderer, webFrame } from 'electron';
+import debounce from './util/debounce';
 
 webFrame.setZoomLevelLimits(1, 1);
 
 function connectDriver(driver) {
+  // Electron is doing something weird where ipcRenderer events are received and
+  // processed even while the debugger is paused. To cope with this, we buffer
+  // up data here and flush it as rapidly as possible. The timers won't fire
+  // while the debugger is paused.
+  var buffer = "";
+  var flush = debounce(() => {
+    var data = buffer;
+    buffer = "";
+    driver.write(data);
+  }, 0);
+
   ipcRenderer.on('connected', (event) => {
     // Send initial resize
     ipcRenderer.send('resize', known_columns, known_rows);
   });
-  ipcRenderer.on('output', (event, data) => driver.write(data));
+  ipcRenderer.on('output', (event, data) => { buffer += data; flush(); });
   ipcRenderer.on('clear', (event) => driver.clear());
   ipcRenderer.on('exit', (event, code, signal) => driver.handleExit(code, signal));
 
