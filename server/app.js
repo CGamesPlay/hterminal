@@ -25,7 +25,7 @@ function createWindow() {
   getRoot(function(root) {
     var window = new BrowserWindow({ width: 800, height: 600 });
     window.loadURL(root);
-    window.webContents.on('did-finish-load', function() {
+    window.webContents.once('did-finish-load', function() {
       new ElectronWindow(window.webContents);
     });
   });
