@@ -122,13 +122,15 @@ TerminalDecoder.prototype = {
     if (/^([?>]?)(\d|;)*$/.test(buffer)) {
       // This is a valid prefix with no terminator
       return -1;
-    } else if (m = /^([?>]?)((\d+;?)*)([A-Za-z])/.exec(buffer)) {
+    } else if (m = /^([?>]?)((\d+;?)*)([@A-Za-z])/.exec(buffer)) {
       var codes = [];
       if (m[2]) {
         codes = m[2].split(';').map(function(x) { return parseInt(x, 10); });
       }
       if (m[1] == "") {
-        if (m[4] == "A") {
+        if (m[4] == "@") {
+          cb('insert-characters', codes[0] || 1);
+        } else if (m[4] == "A") {
           cb('cursor-up', codes[0] || 1);
         } else if (m[4] == "B") {
           cb('cursor-down', codes[0] || 1);
@@ -136,6 +138,8 @@ TerminalDecoder.prototype = {
           cb('cursor-right', codes[0] || 1);
         } else if (m[4] == "D") {
           cb('cursor-left', codes[0] || 1);
+        } else if (m[4] == "G") {
+          cb('set-cursor-x', codes[0] || 1);
         } else if (m[4] == "H") {
           cb('move-cursor', codes[1] || 1, codes[0] || 1);
         } else if (m[4] == "J") {
@@ -146,6 +150,10 @@ TerminalDecoder.prototype = {
           cb('insert-lines', codes[0] || 1);
         } else if (m[4] == "M") {
           cb('delete-lines', codes[0] || 1);
+        } else if (m[4] == "P") {
+          cb('delete-characters', codes[0] || 1);
+        } else if (m[4] == "d") {
+          cb('set-cursor-y', codes[0] || 1);
         } else if (m[4] == 'g') {
           cb('clear-tab-stop', codes[0] == 3);
         } else if (m[4] == "m") {

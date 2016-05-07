@@ -30,6 +30,7 @@ function TextSection(width, height) {
   this.height = height;
   this.x = 0;
   this.y = 0;
+  this.scrollbackLimit = -1;
 
   this.tabStops = new Array(Math.floor(this.width / 8));
   for (var i = 0; i < this.width / 8; i++) {
@@ -157,19 +158,51 @@ TextSection.prototype.moveCursor = function(x, y) {
   this._allocateLinesForCursor();
 };
 
+// Move cursor to a 1-based coordinate
+TextSection.prototype.setCursorX = function(x) {
+  x = Math.min(Math.max(1, x), this.width) - 1;
+  this.x = x;
+};
+
+// Move cursor to a 1-based coordinate
+TextSection.prototype.setCursorY = function(y) {
+  y = Math.min(Math.max(1, y), this.height) - 1;
+  this.y = this._screenTop() + y;
+  this._allocateLinesForCursor();
+};
+
 // Scroll up one line.
 TextSection.prototype.reverseIndex = function() {
   if (this.y == this._screenTop()) {
     if (this.y == 0) {
       // If there's no scrollback, insert a new blank line
       this.lines.splice(this._screenTop(), 0, "");
+    } else {
+      // Just erase the bottom line of the display, causing everything to scroll
+      // up one line. Need to maintian the same relative position of the cursor.
+      this.y -= 1;
     }
     // Delete the bottom line if it is below the bottom of the screen
-    this.lines.splice(this._screenTop() + this.height - 1, 100);
+    this.lines.splice(this._screenTop() + this.height - 1, 1);
   } else {
     // Otherwise, move the cursor up one line
     this.y -= 1;
   }
+};
+
+// Insert blanks after the cursor, truncating the current line if needed.
+TextSection.prototype.insertCharacters = function(n) {
+  this.lines[this.y] =
+    this.lines[this.y].substr(0, this.x) + // Before portion
+    " ".repeat(n) + // Inserted portion
+    this.lines[this.y].substring(this.x, this.width); // After portion
+};
+
+// Delete characters after the cursor on the same line
+TextSection.prototype.deleteCharacters = function(n) {
+  this.lines[this.y] =
+    this.lines[this.y].slice(0, this.x) +
+    this.lines[this.y].slice(this.x + n);
 };
 
 // Inserts blank lines after the cursor, moving later lines down.
@@ -210,6 +243,11 @@ TextSection.prototype._allocateLinesForCursor = function() {
 
 TextSection.prototype._allocateLine = function() {
   this.lines.push("");
+  // Enforce scrollback limits
+  if (this.scrollbackLimit != -1 && this.lines.length > this.scrollbackLimit + this.height) {
+    this.lines = this.lines.slice(1);
+    this.y -= 1;
+  }
 };
 
 // Allocate space on current line for cursor
@@ -313,7 +351,11 @@ TerminalDriver.prototype.textSectionCommands = {
   "cursor-up": "cursorUp",
   "cursor-down": "cursorDown",
   "move-cursor": "moveCursor",
+  "set-cursor-x": "setCursorX",
+  "set-cursor-y": "setCursorY",
   "reverse-index": "reverseIndex",
+  "insert-characters": "insertCharacters",
+  "delete-characters": "deleteCharacters",
   "insert-lines": "insertLines",
   "delete-lines": "deleteLines",
 };
@@ -332,6 +374,12 @@ TerminalDriver.prototype.handleCommand = function(command) {
     }
     section[funcName].apply(section, Array.prototype.slice.call(arguments, 1));
     this.emit('output', this.sections);
+  } else if (command == 'use-alternate-screen') {
+    if (arguments[1]) {
+      this.activateAlternateScreen();
+    } else {
+      this.deactivateAlternateScreen();
+    }
   } else if (command == 'insert-html') {
     this.htmlInsertNewSection(arguments[1]);
   } else if (command == 'set-keypad-mode') {
@@ -350,9 +398,29 @@ TerminalDriver.prototype.getOrCreateTextSection = function() {
     this.sections.push(new_section);
     return new_section;
   }
-}
+};
+
+TerminalDriver.prototype.activateAlternateScreen = function() {
+  if (!this.usingAlternateScreen) {
+    this.usingAlternateScreen = true;
+    var new_section = new TextSection(this.width, this.height);
+    new_section.scrollbackLimit = 0;
+    this.sections.push(new_section);
+  }
+};
+
+TerminalDriver.prototype.deactivateAlternateScreen = function() {
+  if (this.usingAlternateScreen) {
+    this.usingAlternateScreen = false;
+    if (!(this.sections[this.sections.length - 1] instanceof TextSection)) {
+      throw new Error("Internal error: alternate screen aborted");
+    }
+    this.sections.pop();
+  }
+};
 
 TerminalDriver.prototype.htmlInsertNewSection = function(html) {
+  this.deactivateAlternateScreen();
   this.sections.push({ type: "html", content: html });
   this.emit('output', this.sections);
 };

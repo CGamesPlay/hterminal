@@ -116,6 +116,8 @@ describe.only('TerminalDriver', function() {
   it('handles reverse index', function() {
     var result = testTextCell(5, 4, "ab\x1bMcd");
     expect(result).to.equal("  cd\nab");
+    result = testTextCell(5, 4, "\n\n\na\x1bM\x1bM\x1bMb\x1bMc");
+    expect(result).to.equal("  c\n b\n\n");
   });
 
   it('handles line wrapping', function() {
