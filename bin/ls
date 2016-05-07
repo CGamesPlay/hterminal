@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Find the next ls in PATH search order
+real_ls=$(which -a ls | grep -A1 "$0" | tail -1)
+
+# Silently bypass if not hterminal
+if ! ishterminal; then
+  exec $real_ls "$@"
+fi
+
+# Bypass if any switches are passed
+for i in "$@"; do
+  [[ ${i:0:1} == - ]] && exec $real_ls "$@"
+done
+
+hterminal begin
+echo -n "<ul>"
+ls | while read file; do
+  echo -n "<li>"
+  hterminal escape $file
+  echo -n "</li>"
+done
+echo -n "</ul>"
+hterminal end

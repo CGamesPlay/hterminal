@@ -22,7 +22,11 @@ function __htfish_init
         (date "+%x %I:%M %p") \
         $pwd_link \
         $git_info
-      echo "$ "
+      echo "\$ "
+    end
+
+    function ls
+      command ls $argv
     end
   end
 end

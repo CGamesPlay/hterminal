@@ -21,6 +21,12 @@ htmlspecialchars() {
 command=$1
 shift
 case $command in
+  "begin")
+    echo $INSERT_HTML
+    ;;
+  "end")
+    echo $COMMAND_END
+    ;;
   "echo")
     echo "${INSERT_HTML}""$@""${COMMAND_END}"
     ;;
@@ -28,6 +34,22 @@ case $command in
     echo -n "${INSERT_HTML}<iframe srcdoc=\""
     cat "$@" | htmlspecialchars
     echo "\"></iframe>${COMMAND_END}"
+    ;;
+  "escape")
+    if [[ $# -gt 0 ]]; then
+      echo -n "$@" | htmlspecialchars
+    else
+      htmlspecialchars
+    fi
+    ;;
+  "printf")
+    args=("$@")
+    for ((i=1; i<${#args[@]}; i++)); do
+      args[i]="$(echo -n ${args[i]} | htmlspecialchars)"
+    done
+    echo -n $INSERT_HTML
+    printf "${args[@]}"
+    echo -n $COMMAND_END
     ;;
   *)
     echo "Invalid command: $command" >&2
