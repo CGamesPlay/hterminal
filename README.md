@@ -1,6 +1,15 @@
 Use Cases
 =========
 
+General
+-------
+Could use something like iTerm shell integration to achieve this.
+
+- Tab completion with a rich input element
+- Status bar support showing PWD, git status, etc.
+- REPL integration to show input text, result message, throbber, and overall status.
+- REPL integration to show alternate screen contents after it's been hidden.
+
 File management
 ---------------
 - It should be easy to open Finder to the directory you're in.
@@ -26,6 +35,10 @@ Shell integration allows you to set marks to jump to output of specific commands
 Fish
 ----
 I should have a rich text input to type shell commands, and tab should open a rich completion interface. There are many difficulties with this since fish has a very deep readline integration.
+
+Extensions
+----------
+ComponentLibrary is just a library, additional commands can easily be added to it via user scripts.
 
 HTML Mode
 =========
@@ -82,3 +95,21 @@ There are 4 targets available:
 - web / debug - hot-reloading socket.io client and matching server
 - app / production - optimized electron app
 - app / debug - hot-reloading electron app
+
+CPU Usage in Electron
+=====================
+
+I compiled my own version of Electron in order to fix the CPU usage problem. The core of electron gets built normally, the `scripts/create-dist.py` is used to make a zip file.
+
+```bash
+cd ~/Projects/hterminal/electron
+./scripts/build.py
+./scripts/create-dist.py
+cp dist/electron-v0.37.8-darwin-x64.zip ~/.electron/
+cd ~/Projects/hterminal/hterminal
+./script/create-dist.sh
+```
+
+This shouldn't be needed for any version after 0.37.8, when the pull was accepted.
+
+Note that `develop-app` still uses about 30% CPU, this seems to be casued by an incompatibility between webpack and electron.
