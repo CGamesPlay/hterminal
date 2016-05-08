@@ -265,6 +265,10 @@ TextSection.prototype.resize = function(width, height) {
   this.height = height;
 };
 
+TextSection.prototype.isBlank = function() {
+  return this.lines.length == 1 && /^\s+$/.test(this.lines[0]);
+};
+
 TextSection.prototype.toString = function() {
   return this.lines.join("\n");
 };
@@ -420,9 +424,18 @@ TerminalDriver.prototype.deactivateAlternateScreen = function() {
 };
 
 TerminalDriver.prototype.htmlInsertNewSection = function(html) {
-  this.deactivateAlternateScreen();
+  this.prepareForHTML();
   this.sections.push({ type: "html", content: html });
   this.emit('output', this.sections);
+};
+
+TerminalDriver.prototype.prepareForHTML = function(html) {
+  this.deactivateAlternateScreen();
+  // If the latest cell is a single-line blank text cell, delete it.
+  var current_section = this.sections[this.sections.length - 1];
+  if (current_section instanceof TextSection && current_section.isBlank()) {
+    this.sections.pop();
+  }
 };
 
 module.exports = TerminalDriver;

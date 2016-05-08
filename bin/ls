@@ -14,9 +14,18 @@ for i in "$@"; do
 done
 
 hterminal begin
-echo -n "<ul>"
-ls | hterminal escape | while read file; do
-  echo -n "<li>$file</li>"
+in_list=0
+ls "$@" | hterminal escape | while read file; do
+  if [[ -z $file ]]; then
+    echo -n "</multi-column-list>"
+    in_list=0
+  elif [[ ${file: -1} == ":" ]]; then
+    echo -n "<strong>$file</strong>"
+  else
+    [[ $in_list == 0 ]] && echo -n "<multi-column-list>"
+    in_list=1
+    echo -n "<file-pill>$file</file-pill>"
+  fi
 done
-echo -n "</ul>"
+echo -n "</multi-column-list>"
 hterminal end

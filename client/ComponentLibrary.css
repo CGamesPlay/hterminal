@@ -1,0 +1,21 @@
+.multiColumnList {
+  margin: 1em;
+  padding: 0;
+  text-overflow: ellipsis;
+  overflow: auto;
+}
+
+.multiColumnList li {
+  box-sizing: border-box;
+  float: left;
+  list-style-type: none;
+  margin: 0 25px 2px 0;
+  width: 250px;
+}
+
+.filePill {
+  background: #aaaaff;
+  border: solid 1px black;
+  border-radius: 1em;
+  padding: 2px 5px 2px 25px;
+}
