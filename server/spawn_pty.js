@@ -10,6 +10,7 @@ module.exports = function() {
     cwd: process.env.HOME,
     env: Object.assign({}, process.env, {
       TERM: "xterm-256color",
+      TERM_PROGRAM: "HTerminal",
       HTERMINAL_ROOT: path.resolve(__dirname + "/.."),
     }),
     iflag: {

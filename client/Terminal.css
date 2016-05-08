@@ -28,14 +28,27 @@ html, body, #react-root {
 }
 
 .terminal {
-  box-sizing: border-box;
   width: 100%;
   height: 100%;
   font-size: 13px;
   outline: none;
   font-family: 'Anonymous Pro', monospace;
-  white-space: pre;
   line-height: 13px;
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-content {
+  box-sizing: border-box;
+}
+
+.status-bar {
+  flex-grow: 0;
+  background-color: var(--color-base2);
+}
+
+.text-section {
+  white-space: pre;
 }
 
 .text-section:last-child .caret {

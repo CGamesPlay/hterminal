@@ -56,27 +56,31 @@ osc = "\x1b]"
 terminator = "\x07" | "\x1b\\"
 csi = "\x1b["
 
-command = insert-html
+command = insert-html | replace-html
 insert-html = "0;" document
+replace-html = "1;" id ";" document
 ```
 
 A description of the effect of the commands follows:
 
 identify
 --------
-
 Send version information. HTerminal will respond with CSI "HT " followed by the HTerminal version, followed by "n".
 
 insert-html
 -----------
-
 Create a new HTML-based cell at the end and fill it with the HTML document.
+
+replace-html
+------------
+Replace the contents of the cell identified by id with the HTML document.
 
 
 Troubleshooting
 ===============
 
 - HTML prompt not displaying. Fish needs to be at least version 2.2.0 or else it will decide the prompt is too long and not display it.
+- Adjusting the content in fixed sections like hterminal-status may cause the window size to change. If responding to the SIGWINCH causes the window size to change again, this may lead to an infinite loop.
 
 Recommended reading
 ===================

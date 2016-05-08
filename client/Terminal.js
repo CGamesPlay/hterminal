@@ -1,50 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BottomScroller from './BottomScroller';
+import classnames from 'classnames';
 import debounce from './util/debounce';
 import { parseHTML } from './HTMLParser';
 import { inputFromEvent } from './KeyEvent';
 
 import './Terminal.css';
-
-export class Section extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.section !== nextProps.section || this.props.mutable;
-  }
-
-  render() {
-    let section = this.props.section;
-
-    if (section.type == "html") {
-      let payload = parseHTML(section.content);
-      return (
-        <div className="html-section" onClick={this.handleClick.bind(this)}>{payload}</div>
-      );
-    } else {
-      var payload = section.toHTML();
-      return (
-        <div className="text-section" dangerouslySetInnerHTML={payload} onClick={this.handleClick.bind(this)} />
-      );
-    }
-  }
-
-  handleClick(e) {
-    if (e.target.tagName == "A") {
-      if (e.target.href.startsWith("cmd://")) {
-        // This link is a command to run
-        e.preventDefault();
-        let command = unescape(e.target.href.slice(6));
-        if (this.props.onExecute) {
-          this.props.onExecute(command);
-        }
-      }
-    }
-  }
-}
 
 export default class Terminal extends React.Component {
   constructor(props) {
@@ -76,6 +38,8 @@ export default class Terminal extends React.Component {
   addListenersToDriver(driver) {
     driver.on('output', this.delayUpdate);
     driver.on('exit', this.handleExit);
+
+    driver.setFixedSections([ "hterminal-status" ]);
   }
 
   removeListenersFromDriver(driver) {
@@ -97,11 +61,27 @@ export default class Terminal extends React.Component {
     );
     return (
       <div ref="container" className="terminal" tabIndex={-1} onPaste={this.handlePaste.bind(this)}>
-        <BottomScroller ref="scroller">
+        <BottomScroller ref="scroller" className="terminal-content">
           {sections}
         </BottomScroller>
+        {this.renderStatusBar()}
       </div>
     );
+  }
+
+  renderStatusBar() {
+    let section = this.props.driver.fixedSections["hterminal-status"];
+    // Only show the status bar if it has contents
+    if (section && section.content.length > 0) {
+      return (
+        <Section className="status-bar"
+          style={{ padding: this.props.minimumPadding }}
+          section={section}
+          onExecute={this.handleExecute.bind(this)} />
+      );
+    } else {
+      return null;
+    }
   }
 
   handleKeyEvent(e) {
@@ -139,20 +119,26 @@ export default class Terminal extends React.Component {
     var styleKey = currentStyle.fontFamily + ":" + currentStyle.fontSize;
     if (this.styleKey != styleKey) {
       var el = document.createElement("SPAN");
+      var scrollerNode = ReactDOM.findDOMNode(this.refs.scroller);
       el.innerHTML = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      this.refs.container.appendChild(el);
+      scrollerNode.appendChild(el);
       this.fontMetrics = [ el.offsetWidth / 26, el.offsetHeight ];
-      this.refs.container.removeChild(el);
+      scrollerNode.removeChild(el);
       this.styleKey = styleKey;
+      debugger;
     }
     return this.fontMetrics;
   }
 
   calculateWindowSize() {
     var fontMetrics = this.calculateFontSize();
-    var clientNode = ReactDOM.findDOMNode(this);
+    var clientNode = ReactDOM.findDOMNode(this.refs.scroller);
+    // We require that there is whitespace around the left, right, and bottom.
+    // We apply the same padding to the top of the window, but the calculations
+    // don't include it because it will only be shown when the window is
+    // scrolled up.
     var clientWidth = clientNode.clientWidth - this.props.minimumPadding * 2;
-    var clientHeight = clientNode.clientHeight - this.props.minimumPadding * 2;
+    var clientHeight = clientNode.clientHeight - this.props.minimumPadding;
 
     var columns = Math.floor(clientWidth / fontMetrics[0]);
     var rows = Math.floor(clientHeight / fontMetrics[1]);
@@ -173,4 +159,50 @@ export default class Terminal extends React.Component {
 Terminal.defaultProps = {
   // Default padding around each edge
   minimumPadding: 3,
+}
+
+export class Section extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.section !== nextProps.section || !!this.props.mutable;
+  }
+
+  render() {
+    let { className, section, ...other } = this.props;
+
+    if (section.type == "html") {
+      let payload = parseHTML(section.content);
+      return (
+        <div className={classnames(className, "html-section")}
+          onClick={this.handleClick.bind(this)}
+          {...other}>
+          {payload}
+        </div>
+      );
+    } else {
+      var payload = section.toHTML();
+      return (
+        <div className={classnames(className, "text-section")}
+          dangerouslySetInnerHTML={payload}
+          onClick={this.handleClick.bind(this)}
+          {...other} />
+      );
+    }
+  }
+
+  handleClick(e) {
+    if (e.target.tagName == "A") {
+      if (e.target.href.startsWith("cmd://")) {
+        // This link is a command to run
+        e.preventDefault();
+        let command = unescape(e.target.href.slice(6));
+        if (this.props.onExecute) {
+          this.props.onExecute(command);
+        }
+      }
+    }
+  }
 }

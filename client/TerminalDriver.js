@@ -7,11 +7,25 @@ export default class TerminalDriver extends EventEmitter {
   constructor(width, height) {
     super();
 
+    this.fixedSections = {};
     this.sections = [];
     this.decoder = new TerminalDecoder();
     this.width = width;
     this.height = height;
     this.keypadMode = false;
+  }
+
+  // Set the list of well-known sections
+  setFixedSections(ids) {
+    let newSections = {};
+    ids.forEach((id) => {
+      if (this.fixedSections[id]) {
+        newSections[id] = this.fixedSections[id];
+      } else {
+        newSections[id] = { type: "html", content: "" };
+      }
+    });
+    this.fixedSections = newSections;
   }
 
   write(output) {
@@ -20,11 +34,12 @@ export default class TerminalDriver extends EventEmitter {
 
   // User initiated screen clear
   clear() {
+    this.deactivateAlternateScreen();
     this.sections = this.sections.slice(-1);
     if (this.sections[0] instanceof VT100Section) {
       this.sections[0].userInitiatedClear();
     }
-    this.emit('output', this.sections);
+    this.emit('output');
   }
 
   resize(columns, rows) {
@@ -50,7 +65,7 @@ export default class TerminalDriver extends EventEmitter {
         throw new Error("Internal error: invalid VT100Section.handledCommands value: " + command);
       }
       section[funcName].apply(section, Array.prototype.slice.call(arguments, 1));
-      this.emit('output', this.sections);
+      this.emit('output');
     } else if (command == 'use-alternate-screen') {
       if (arguments[1]) {
         this.activateAlternateScreen();
@@ -59,6 +74,8 @@ export default class TerminalDriver extends EventEmitter {
       }
     } else if (command == 'insert-html') {
       this.htmlInsertNewSection(arguments[1]);
+    } else if (command == 'replace-html') {
+      this.htmlReplaceSection(arguments[1], arguments[2]);
     } else if (command == 'set-keypad-mode') {
       this.keypadMode = arguments[1];
     } else if (TerminalDriver.passAlongCommands.indexOf(command) != -1) {
@@ -99,7 +116,16 @@ export default class TerminalDriver extends EventEmitter {
   htmlInsertNewSection(html) {
     this.prepareForHTML();
     this.sections.push({ type: "html", content: html });
-    this.emit('output', this.sections);
+    this.emit('output');
+  }
+
+  htmlReplaceSection(id, html) {
+    if (this.fixedSections[id]) {
+      this.fixedSections[id] = { type: "html", content: html };
+    } else {
+      // Not implemented
+    }
+    this.emit('output');
   }
 
   prepareForHTML(html) {
