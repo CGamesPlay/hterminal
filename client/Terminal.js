@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BottomScroller from './BottomScroller';
-import CSS from './Terminal.css';
 import debounce from './util/debounce';
 import { parseHTML } from './HTMLParser';
+
+import './Terminal.css';
 
 function inputFromEvent(event, keypadMode) {
   var prefix = keypadMode ? "\x1bO" : "\x1b[";
@@ -62,12 +63,12 @@ export class Section extends React.Component {
     if (section.type == "html") {
       let payload = parseHTML(section.content);
       return (
-        <div className={CSS.htmlSection} onClick={this.handleClick.bind(this)}>{payload}</div>
+        <div className="html-section" onClick={this.handleClick.bind(this)}>{payload}</div>
       );
     } else {
       var payload = section.toHTML();
       return (
-        <div className={CSS.textSection} dangerouslySetInnerHTML={payload} onClick={this.handleClick.bind(this)} />
+        <div className="text-section" dangerouslySetInnerHTML={payload} onClick={this.handleClick.bind(this)} />
       );
     }
   }
@@ -136,8 +137,8 @@ export default class Terminal extends React.Component {
         onExecute={this.handleExecute.bind(this)} />
     );
     return (
-      <div ref="container" className={CSS.terminal} tabIndex={-1} onPaste={this.handlePaste.bind(this)}>
-        <BottomScroller ref="scroller" className={CSS.terminalContents}>
+      <div ref="container" className="terminal" tabIndex={-1} onPaste={this.handlePaste.bind(this)}>
+        <BottomScroller ref="scroller">
           {sections}
         </BottomScroller>
       </div>

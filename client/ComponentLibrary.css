@@ -1,11 +1,11 @@
-.multiColumnList {
+.multi-column-list {
   margin: 1em;
   padding: 0;
   text-overflow: ellipsis;
   overflow: auto;
 }
 
-.multiColumnList li {
+.multi-column-list li {
   box-sizing: border-box;
   float: left;
   list-style-type: none;
@@ -13,9 +13,9 @@
   width: 250px;
 }
 
-.filePill {
-  background: #aaaaff;
-  border: solid 1px black;
+.file-pill {
+  background: var(--color-blue);
+  color: var(--color-base2);
   border-radius: 1em;
-  padding: 2px 5px 2px 25px;
+  padding: 3px 7px;
 }

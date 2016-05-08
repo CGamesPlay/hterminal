@@ -4,7 +4,7 @@ import CSS from './ComponentLibrary.css';
 export class MultiColumnList extends React.Component {
   render() {
     return (
-      <ul className={CSS.multiColumnList}>
+      <ul className="multi-column-list">
         {this.props.children}
       </ul>
     );
@@ -13,7 +13,7 @@ export class MultiColumnList extends React.Component {
 
 export class FilePill extends React.Component {
   render() {
-    return <li className={CSS.filePill}>{this.props.children}</li>;
+    return <li className="file-pill">{this.props.children}</li>;
   }
 }
 

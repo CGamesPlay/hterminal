@@ -33,8 +33,17 @@ export default class BottomScroller extends React.Component {
   }
 
   render() {
+    var { style, ...other } = this.props;
+
+    style = Object.assign({
+      width: "100%",
+      height: "100%",
+      overflowX: "hidden",
+      overflowY: "scroll",
+    }, style);
+
     return (
-      <div ref="container" {...this.props}>
+      <div ref="container" style={style} {...other}>
         <div ref="spacer" />
         <div ref="contents">
           {this.props.children}

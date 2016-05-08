@@ -22,13 +22,13 @@ var baseConfig = {
     loaders: [{
       test: /\.js$/,
       exclude: /node_modules/,
-      loader: 'react-hot!babel?{"presets":["react","es2015"]}',
+      loader: 'react-hot!babel?{"presets":["react","es2015","stage-2"]}',
     }, {
       test: /\.json$/,
       loader: 'json'
     }, {
       test: /\.css$/,
-      loaders: [ 'style-loader', 'css-loader?modules' ],
+      loaders: [ 'style-loader', 'css-loader' ],
     }]
   }
 };
