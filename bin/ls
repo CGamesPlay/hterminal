@@ -15,10 +15,8 @@ done
 
 hterminal begin
 echo -n "<ul>"
-ls | while read file; do
-  echo -n "<li>"
-  hterminal escape $file
-  echo -n "</li>"
+ls | hterminal escape | while read file; do
+  echo -n "<li>$file</li>"
 done
 echo -n "</ul>"
 hterminal end
