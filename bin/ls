@@ -24,7 +24,17 @@ ls "$@" | hterminal escape | while read file; do
   else
     [[ $in_list == 0 ]] && echo -n "<multi-column-list>"
     in_list=1
-    echo -n "<file-pill>$file</file-pill>"
+    # -F Display a slash (`/') immediately after each pathname that is a directory, an asterisk (`*')
+    #    after each that is executable, an at sign (`@') after each symbolic link, an equals sign (`=')
+    #    after each socket, a percent sign (`%') after each whiteout, and a vertical bar (`|') after
+    #    each that is a FIFO.
+    indicator=${file: -1}
+    mime=""
+    if [[ $indicator == "/" ]]; then
+      file=${file%?}
+      mime="mime=\"application/x-directory\""
+    fi
+    echo -n "<file-pill ${mime}>$file</file-pill>"
   fi
 done
 echo -n "</multi-column-list>"

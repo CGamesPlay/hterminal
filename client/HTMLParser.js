@@ -22,6 +22,10 @@ export function parseHTML(data) {
       stack.push(component);
     }
   };
+  parser.onerror = function(e) {
+    console.error(e);
+    parser.error = null;
+  };
   parser.write("<div>" + data + "</div>").close();
   return stack[0];
 }

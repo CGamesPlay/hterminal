@@ -3,7 +3,9 @@ Use Cases
 
 File management
 ---------------
-It should be easy to open Finder to the directory you're in. Directory listings should behave like Finder windows, with drag-n-drop and double clicking to open them.
+- It should be easy to open Finder to the directory you're in.
+- Directory listings should behave like Finder windows, with drag-n-drop and double clicking to open them.
+- cat should work on all file types, including offering a download proxy icon if the file is binary.
 
 Jupyter features
 ----------------
@@ -66,6 +68,8 @@ Troubleshooting
 Recommended reading
 ===================
 
+- https://github.com/shockone/black-screen
+- https://github.com/unconed/TermKit
 - http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 - http://www.asciitable.com/
 
