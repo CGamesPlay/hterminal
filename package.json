@@ -9,7 +9,8 @@
     "develop-app": "gulp develop-app"
   },
   "dependencies": {
-    "child_pty": "CGamesPlay/child_pty"
+    "child_pty": "CGamesPlay/child_pty",
+    "sax": "^1.2.1"
   },
   "devDependencies": {
     "babel-core": "~6.7.7",

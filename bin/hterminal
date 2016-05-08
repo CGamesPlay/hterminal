@@ -22,10 +22,10 @@ command=$1
 shift
 case $command in
   "begin")
-    echo $INSERT_HTML
+    echo -n $INSERT_HTML
     ;;
   "end")
-    echo $COMMAND_END
+    echo -n $COMMAND_END
     ;;
   "echo")
     echo "${INSERT_HTML}""$@""${COMMAND_END}"

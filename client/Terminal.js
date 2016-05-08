@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
 import BottomScroller from './BottomScroller';
 import CSS from './Terminal.css';
 import debounce from './util/debounce';
+import { parseHTML } from './HTMLParser';
 
 function inputFromEvent(event, keypadMode) {
   var prefix = keypadMode ? "\x1bO" : "\x1b[";
@@ -50,16 +50,19 @@ function inputFromEvent(event, keypadMode) {
 export class Section extends React.Component {
   constructor(props) {
     super(props);
-    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.section !== nextProps.section || this.props.mutable;
   }
 
   render() {
     let section = this.props.section;
 
     if (section.type == "html") {
-      let payload = { __html: section.content };
+      let payload = parseHTML(section.content);
       return (
-        <div className={CSS.htmlSection} dangerouslySetInnerHTML={payload} onClick={this.handleClick.bind(this)} />
+        <div className={CSS.htmlSection} onClick={this.handleClick.bind(this)}>{payload}</div>
       );
     } else {
       var payload = section.toHTML();
