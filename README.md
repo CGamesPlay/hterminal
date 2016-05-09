@@ -1,14 +1,36 @@
-Use Cases
-=========
+# What is HTerminal?
 
-General
--------
-Could use something like iTerm shell integration to achieve this.
+HTerminal is a new kind of terminal program. It works with all your existing programs and workflows, but can be extended to provide rich user experiences using HTML and CSS.
 
-- Tab completion with a rich input element
-- Status bar support showing PWD, git status, etc.
-- REPL integration to show input text, result message, throbber, and overall status.
-- REPL integration to show alternate screen contents after it's been hidden.
+![](share/res/typical.png)
+
+## Compatibility
+
+HTerminal aims to be compatible with most existing terminal programs without any modification. This allows you to start using HTerminal without fully changing around your workflow. Some programs that HTerminal currently works with are:
+
+**Basic programs**
+
+All normal terminal programs programs like ps, top, kill, ls, cd, etc. are all fully supported by HTerminal. HTerminal primarily works by providing transparent wrappers around exisitng commands to give them enhanced functionality (which can be disabled if needed).
+
+**Fish**
+
+Fish is the preferred shell of HTerminal and all features of fish are supported and improved upon.
+
+- *Planned* - Input interface utilizing all of the fish completions, but presented using a rich typeahead control.
+- *Planned* - Shell integration to highlight commands and provide information like error highlighting and run time.
+
+**Vim**
+
+Vim currently is partially supported. It works for basic editing, for example a git commit message editor.
+
+**SSH**
+
+All HTerminal features work over SSH, because HTerminal does not need special software to communicate with programs. Note that tmux and mosh do not understand the HTerminal communication protocol. These programs work in HTerminal, but do not gain any of HTerminal's enhanced features.
+
+**General REPL interface**
+
+- Method to show command, output, exit status, run time, and a throbber.
+- Method to save alternate screen contents and review it.
 
 File management
 ---------------
@@ -24,17 +46,9 @@ Git
 ---
 - Run `git status` and an augmented status page shows up with buttons to stage, unstage, commit, etc files. Typing additional git commands will cause the existing status window to refresh. Git diff will open in a popup. Git commit opens the editor in a popup.
 
-SSH
----
-- Tmux would run in a popup, not much fanciness there.
-
 ITerm parity
 ------------
 Shell integration allows you to set marks to jump to output of specific commands, identifies previous directories and allows downloading remote files.
-
-Fish
-----
-I should have a rich text input to type shell commands, and tab should open a rich completion interface. There are many difficulties with this since fish has a very deep readline integration.
 
 Extensions
 ----------
@@ -79,7 +93,6 @@ Replace the contents of the cell identified by id with the HTML document.
 Troubleshooting
 ===============
 
-- HTML prompt not displaying. Fish needs to be at least version 2.2.0 or else it will decide the prompt is too long and not display it.
 - Adjusting the content in fixed sections like hterminal-status may cause the window size to change. If responding to the SIGWINCH causes the window size to change again, this may lead to an infinite loop.
 
 Recommended reading
@@ -99,6 +112,17 @@ There are 4 targets available:
 - web / debug - hot-reloading socket.io client and matching server
 - app / production - optimized electron app
 - app / debug - hot-reloading electron app
+
+Thoughts on completions
+=======================
+
+In order to get full control of reading lines with fish, a script is used to read lines and evaluate them. There are some problems:
+
+- `fish --no-execute -c ")"` returns shell true despite being an invalid command.
+- `commandline -f execute` redraws the command line before executing
+- `eval`: `set -l` doesn't work and history isn't added.
+
+I could have htfish_read_command output an escape start before returning, and an escape terminator in the preexec hook. I could also have the fish prompt be completely empty. If the prompt contains DSR, input will have to be consumed in a preexec hook.
 
 CPU Usage in Electron
 =====================
