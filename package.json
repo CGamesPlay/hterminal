@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "child_pty": "CGamesPlay/child_pty",
+    "classnames": "^2.2.5",
     "sax": "^1.2.1"
   },
   "devDependencies": {
