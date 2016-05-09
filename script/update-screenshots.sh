@@ -20,6 +20,7 @@ sync_hterminal() {
   echo -n '[5n'
   read -n 4
   stty "$saved_stty"
+  sleep 0.1
 }
 
 fake_command() {
@@ -46,7 +47,7 @@ set_title() {
 set_title "fish $(pwd)"
 
 clear
-fake_command pwd
 fake_command git st
+fake_command cat /Library/Developer/CommandLineTools/usr/share/gitweb/static/git-logo.png
 fake_command ls
 screenshot share/res/typical.png
