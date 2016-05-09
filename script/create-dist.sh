@@ -14,4 +14,8 @@ cd dist/
 npm link termios child_pty
 npm install
 rm -rf ../hterminal-darwin-x64/
-../node_modules/.bin/electron-packager ./ --platform=darwin --arch=x64 --overwrite --prune --out=..
+../node_modules/.bin/electron-packager ./ HTerminal \
+  --platform=darwin --arch=x64 \
+  --app-bundle-id=com.cgamesplay.hterminal \
+  --app-category-type=app-category-type=public.app-category.developer-tools \
+  --overwrite --prune --out=..
