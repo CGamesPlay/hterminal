@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Find the next ls in PATH search order
 real_ls=$(which -a ls | grep -A1 "$0" | tail -1)
 

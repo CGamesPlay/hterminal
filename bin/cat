@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+INSERT_HTML=$(echo -en "\x1b]1866;0;")
+COMMAND_END=$(echo -en "\x07")
+
+# Find the next cat in PATH search order
+real_cat=$(which -a cat | grep -A1 "$0" | tail -1)
+
+# Silently bypass if not hterminal
+if ! ishterminal; then
+  exec $real_cat "$@"
+fi
+
+# Bypass if any switches are passed
+for i in "$@"; do
+  [[ ${i:0:1} == - ]] && exec $real_cat "$@"
+done
+
+for i in "$@"; do
+  mime=$(file -b --mime-type "$i")
+  if [[ $mime == "image/png" ]] || [[ $mime == "image/jpeg" ]]; then
+    echo -n $INSERT_HTML'<framed-image src="data:'$mime';base64,'
+    base64 "$i"
+    echo -n '" />'$COMMAND_END
+  elif [[ ! -f "$i" || $mime == "text/"* ]]; then
+    $real_cat "$i"
+  else
+    echo "proxy icon; $mime"
+  fi
+done

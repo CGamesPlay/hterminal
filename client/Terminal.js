@@ -125,7 +125,6 @@ export default class Terminal extends React.Component {
       this.fontMetrics = [ el.offsetWidth / 26, el.offsetHeight ];
       scrollerNode.removeChild(el);
       this.styleKey = styleKey;
-      debugger;
     }
     return this.fontMetrics;
   }

@@ -18,4 +18,11 @@
   color: var(--color-base2);
   border-radius: 1em;
   padding: 3px 7px;
+  text-overflow: ellipsis;
+  overflow:hidden;
+}
+
+.framed-image {
+  border: solid 5px var(--color-base2);
+  border-radius: 10px;
 }
