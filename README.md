@@ -2,7 +2,16 @@
 
 HTerminal is a new kind of terminal program. It works with all your existing programs and workflows, but can be extended to provide rich user experiences using HTML and CSS.
 
+:warning: **Warning:** HTerminal is not ready for public consumption yet. You are welcome to download a copy to try out, but many features you expect from a terminal program are not yet implemented.
+
 ![](share/res/typical.png)
+
+## Features
+
+- Fully compatible with all existing terminal programs and shells. HTerminal enhances existing programs instead of replacing them.
+- No learning curve. HTerminal automatically extends programs you already know how to use, but makes them work better.
+- *Planned* - Customizable. You can install your own CSS stylesheets to change both the terminal as well as the HTML components from programs.
+- *Planned* - Extendable. You can install packages to add new features.
 
 ## Compatibility
 
@@ -11,6 +20,12 @@ HTerminal aims to be compatible with most existing terminal programs without any
 **Basic programs**
 
 All normal terminal programs programs like ps, top, kill, ls, cd, etc. are all fully supported by HTerminal. HTerminal primarily works by providing transparent wrappers around exisitng commands to give them enhanced functionality (which can be disabled if needed).
+
+- *Planned* - terminal styles like colors and bold are not currently implemented.
+
+**Environment configurations**
+
+Programs like rvm and virtualenv work just fine in HTerminal, because HTerminal is not a shell.
 
 **Fish**
 
@@ -32,27 +47,54 @@ All HTerminal features work over SSH, because HTerminal does not need special so
 - Method to show command, output, exit status, run time, and a throbber.
 - Method to save alternate screen contents and review it.
 
-File management
----------------
+**File management**
+
 - It should be easy to open Finder to the directory you're in.
 - Directory listings should behave like Finder windows, with drag-n-drop and double clicking to open them.
 - cat should work on all file types, including offering a download proxy icon if the file is binary.
 
-Jupyter features
-----------------
-Jupyter has great table support, as well as images.
+**Jupyter**
 
-Git
----
-- Run `git status` and an augmented status page shows up with buttons to stage, unstage, commit, etc files. Typing additional git commands will cause the existing status window to refresh. Git diff will open in a popup. Git commit opens the editor in a popup.
+*Planned* - `jupyter console` should render HTML like `jupyter notebook` does.
 
-ITerm parity
-------------
-Shell integration allows you to set marks to jump to output of specific commands, identifies previous directories and allows downloading remote files.
+**Git**
 
-Extensions
-----------
-ComponentLibrary is just a library, additional commands can easily be added to it via user scripts.
+*Planned* - Run `git status` and an augmented status page shows up with buttons to stage, unstage, commit, etc files. Typing additional git commands will cause the existing status window to refresh. Git diff will open in a popup. Git commit opens the editor in a popup.
+
+**iTerm 2**
+
+- Shell integration allows you to set marks to jump to output of specific commands, identifies previous directories and allows downloading remote files.
+
+Installation
+============
+
+**End-user installation**
+
+The easiest way to try HTerminal is to use a prebuilt binary. HTerminal is not ready for widespread use, so the binary is unversioned but is kept up to date with the `master` branch of this repository.
+
+:warning: **Warning:** HTerminal is not ready for public consumption yet. You are welcome to download a copy to try out, but many features you expect from a terminal program are not yet implemented.
+
+1. [Download HTerminal](https://www.dropbox.com/s/cvq559t1ala32y8/HTerminal.zip?dl=0) and extract it to `~/Applications/`.
+2. [Download and install Fish](https://fishshell.com) if you don't already use it. HTerminal supports all shells, but Fish has an out-of-the-box configuration already made.
+3. Add the following to `~/.config/fish/init.fish`, or some other initialization file for Fish.
+   ```fish
+   # Load hterminal shell integration
+   if [ ! -z $HTERMINAL_ROOT ]
+     source $HTERMINAL_ROOT/share/shell/fish/init.fish
+   end
+   ```
+4. Launch HTerminal and type `ls`.
+
+**Developer installation**
+
+If you want to contribute to HTerminal, follow these steps:
+
+1. Clone the repository.
+2. `npm install` - If you get an error about electron, that's because electron `0.37.9` hasn't been released yet. You can change `package.json` to use `0.37.8`, but note that HTerminal will use 100% CPU in app mode (web mode will work fine).
+3. Use `npm run develop-app` or `npm run develop-web` to launch a live-reloading HTerminal in either app (Electron) mode or web mode.
+4. Use `./script/create-dist.sh` to create a standalone app in `HTerminal-darwin-x64`.
+
+Note that `develop-app` still uses about 30% CPU; this seems to be caused by an incompatibility between webpack and electron. When you build a standalone app using `create-dist` the CPU usage for HTerminal is minimal.
 
 HTML Mode
 =========
@@ -102,16 +144,6 @@ Recommended reading
 - https://github.com/unconed/TermKit
 - http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 - http://www.asciitable.com/
-
-Distribution
-============
-
-There are 4 targets available:
-
-- web / production - optimized socket.io client and matching server
-- web / debug - hot-reloading socket.io client and matching server
-- app / production - optimized electron app
-- app / debug - hot-reloading electron app
 
 Thoughts on completions
 =======================
