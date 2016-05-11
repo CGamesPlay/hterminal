@@ -284,6 +284,16 @@ TerminalDecoder.prototype = {
       var code = parseInt(m[1], 10);
       if (code == 0) {
         cb('set-title', m[2]);
+      } else if (code == 133) {
+        if (m[2] == "A") {
+          cb('repl-prompt');
+        } else if (m[2] == "C;") {
+          cb('repl-output');
+        } else if (m[2].slice(0, 2) == "D;") {
+          cb('repl-end', parseInt(m[2].slice(2), 10));
+        } else {
+          cb('osc', code, m[2]);
+        }
       } else if (code == 1866) {
         this.handleHTMLCommand(m[2], cb);
       } else {

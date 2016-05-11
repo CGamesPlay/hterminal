@@ -51,9 +51,19 @@ html, body, #react-root {
   white-space: pre;
 }
 
-.text-section:last-child .caret {
+.group {
+  margin-top: 1em;
+}
+
+.group:last-child .text-section:last-child .caret {
   background-color: var(--color-base00);
   color: var(--color-base3);
+}
+
+.group .repl-prompt {
+  background-color: var(--color-base2);
+  margin: 0 -20px;
+  padding: 0 20px;
 }
 
 .html-section {

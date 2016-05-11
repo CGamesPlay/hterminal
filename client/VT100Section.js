@@ -250,8 +250,16 @@ export default class VT100Section {
     this.height = height;
   }
 
+  // Remove blank lines from the end of the text cell.
+  trimLines() {
+    while (this.lines.length > 0 && /^\s*$/.test(this.lines[this.lines.length - 1])) {
+      this.lines.pop();
+    }
+  }
+
   isBlank() {
-    return this.lines.length == 1 && /^\s+$/.test(this.lines[0]);
+    return this.lines.length == 0 ||
+           this.lines.length == 1 && /^\s*$/.test(this.lines[0]);
   }
 
   toString() {

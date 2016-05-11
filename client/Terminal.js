@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import PureRenderMixin from 'react-addons-pure-render-mixin';
 import BottomScroller from './BottomScroller';
 import classnames from 'classnames';
 import debounce from './util/debounce';
@@ -13,9 +14,10 @@ export default class Terminal extends React.Component {
     super(props);
     // These methods need to be bound because they are used to add/remove event
     // listeners
-    this.delayUpdate = debounce(this.delayUpdate.bind(this), 10);
+    this.forceUpdate = this.forceUpdate.bind(this);
     this.delayResize = debounce(this.calculateWindowSize.bind(this), 100);
     this.handleExit = this.handleExit.bind(this);
+    this.handleExecute = this.handleExecute.bind(this);
   }
 
   componentDidMount() {
@@ -36,14 +38,14 @@ export default class Terminal extends React.Component {
   }
 
   addListenersToDriver(driver) {
-    driver.on('output', this.delayUpdate);
+    driver.on('update', this.forceUpdate);
     driver.on('exit', this.handleExit);
 
     driver.setFixedSections([ "hterminal-status" ]);
   }
 
   removeListenersFromDriver(driver) {
-    driver.removeListener('output', this.delayUpdate);
+    driver.removeListener('update', this.forceUpdate);
     driver.removeListener('exit', this.handleExit);
   }
 
@@ -52,17 +54,17 @@ export default class Terminal extends React.Component {
   }
 
   render() {
-    let sections = this.props.driver.sections.map((s, i) =>
-      <Section
-        key={i}
-        section={s}
-        mutable={i == this.props.driver.sections.length - 1}
-        onExecute={this.handleExecute.bind(this)} />
+    let groups = this.props.driver.groups.map((r, i) =>
+      <SectionGroup
+        key={r.uniqueId}
+        group={r}
+        readOnly={r.isFinished() || i != this.props.driver.groups.length - 1}
+        onExecute={this.handleExecute} />
     );
     return (
       <div ref="container" className="terminal" tabIndex={-1} onPaste={this.handlePaste.bind(this)}>
         <BottomScroller ref="scroller" className="terminal-content">
-          {sections}
+          {groups}
         </BottomScroller>
         {this.renderStatusBar()}
       </div>
@@ -108,10 +110,6 @@ export default class Terminal extends React.Component {
 
   handleExit(code, status) {
     window.close();
-  }
-
-  delayUpdate() {
-    this.forceUpdate();
   }
 
   calculateFontSize() {
@@ -160,22 +158,63 @@ Terminal.defaultProps = {
   minimumPadding: 3,
 }
 
-export class Section extends React.Component {
+export class SectionGroup extends React.Component {
   constructor(props) {
     super(props);
+
+    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
+    this.forceUpdate = this.forceUpdate.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.section !== nextProps.section || !!this.props.mutable;
+  componentDidMount() {
+    this.addListenersToGroup(this.props.group);
+  }
+
+  componentWillUnmount() {
+    this.removeListenersFromGroup(this.props.group);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.group !== this.props.group) {
+      this.removeListenersFromGroup(this.props.group);
+      this.addListenersToGroup(newProps.group);
+    }
+  }
+
+  addListenersToGroup(group) {
+    group.on('update', this.forceUpdate);
+  }
+
+  removeListenersFromGroup(group) {
+    group.removeListener('update', this.forceUpdate);
   }
 
   render() {
-    let { className, section, ...other } = this.props;
+    let sections = this.props.group.sections.map((s, i) =>
+      <Section
+        key={i}
+        section={s}
+        readOnly={this.props.readOnly || i != this.props.group.sections.length - 1}
+        onExecute={this.props.onExecute} />
+    );
+    return (
+      <div className="group">{sections}</div>
+    );
+  }
+}
+
+export class Section extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    return this.props.section !== nextProps.section || !this.props.readOnly;
+  }
+
+  render() {
+    let { className, section, readOnly, ...other } = this.props;
 
     if (section.type == "html") {
       let payload = parseHTML(section.content);
       return (
-        <div className={classnames(className, "html-section")}
+        <div className={classnames(className, "html-section", section.className)}
           onClick={this.handleClick.bind(this)}
           {...other}>
           {payload}
@@ -184,7 +223,7 @@ export class Section extends React.Component {
     } else {
       var payload = section.toHTML();
       return (
-        <div className={classnames(className, "text-section")}
+        <div className={classnames(className, "text-section", section.className)}
           dangerouslySetInnerHTML={payload}
           onClick={this.handleClick.bind(this)}
           {...other} />
