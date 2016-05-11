@@ -1,7 +1,7 @@
 function __htfish_init
   # Add our wrapper functions to the PATH
   set -g fish_user_paths (dirname (dirname (dirname (dirname (status -f)))))/bin $fish_user_paths
-  autoload (dirname (status -f))/functions
+  set -g fish_function_path (dirname (status -f))/functions $fish_function_path
 
   function htfish_status_bar --on-event fish_prompt
     if not set -q -g htfish_prompt_hostname
