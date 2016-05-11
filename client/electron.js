@@ -16,7 +16,9 @@ function connectDriver(driver) {
   var flush = debounce(() => {
     var data = buffer;
     buffer = "";
-    driver.write(data);
+    ReactDOM.unstable_batchedUpdates(() => {
+      driver.write(data);
+    });
   }, 0);
 
   ipcRenderer.on('connected', (event) => {

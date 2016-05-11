@@ -4,7 +4,9 @@ import debounce from './util/debounce';
 export default class BottomScroller extends React.Component {
   constructor(props) {
     super(props);
+    this.isScrolledToBottom = true;
     this.delayUpdate = debounce(this.delayUpdate.bind(this), 10);
+    this.handleScroll = debounce(this.handleScroll.bind(this), 250);
   }
 
   componentDidMount() {
@@ -13,13 +15,6 @@ export default class BottomScroller extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.delayUpdate);
-  }
-
-  componentWillUpdate() {
-    // You are "at the bottom" if the scroll is within epsilon of the bottom
-    // currently.
-    let epsilon = 10;
-    this.isScrolledToBottom = this.refs.container.scrollTop + this.refs.container.clientHeight + epsilon >= this.refs.container.scrollHeight;
   }
 
   componentDidUpdate() {
@@ -43,7 +38,7 @@ export default class BottomScroller extends React.Component {
     }, style);
 
     return (
-      <div ref="container" style={style} {...other}>
+      <div ref="container" style={style} onScroll={this.handleScroll} {...other}>
         <div ref="spacer" />
         <div ref="contents">
           {this.props.children}
@@ -56,7 +51,14 @@ export default class BottomScroller extends React.Component {
     this.forceUpdate();
   }
 
+  handleScroll() {
+    // You are "at the bottom" if currently scrolled within epsilon of the bottom.
+    let epsilon = 10;
+    this.isScrolledToBottom = this.refs.container.scrollTop + this.refs.container.clientHeight + epsilon >= this.refs.container.scrollHeight;
+  }
+
   scrollToBottom() {
     this.refs.container.scrollTop = this.refs.container.scrollHeight;
+    this.isScrolledToBottom = true;
   }
 }

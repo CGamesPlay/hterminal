@@ -4,9 +4,15 @@ import io from 'socket.io-client';
 import Terminal from './Terminal';
 import TerminalDriver from './TerminalDriver';
 
+function driverWrite(data) {
+  ReactDOM.unstable_batchedUpdates(() => {
+    driver.write(data);
+  });
+}
+
 var socket = io();
 function connectDriver(driver) {
-  socket.on('output', driver.write.bind(driver));
+  socket.on('output', driverWrite.bind(null));
   socket.on('exit', driver.handleExit.bind(driver));
 
   driver.on('set-title', (t) => document.title = t);
