@@ -25,9 +25,12 @@ sync_hterminal() {
 
 fake_command() {
   echo -n -e "\r"
+  echo -n -e "\x1b]133;A\a"
   echo "$" "$@"
+  echo -n -e "\x1b]133;C;\a"
   "$@"
-  echo
+  echo -n -e "\x1b]133;D;$status\a"
+  echo -n -e "\x1b]133;A\a"
   echo -n "$ "
   sync_hterminal
 }
