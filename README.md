@@ -100,9 +100,9 @@ Note that `develop-app` still uses about 30% CPU; this seems to be caused by an 
 HTML Mode
 =========
 
-HTerminal supports displaying HTML data in the terminal. This is accomplished using special escape sequences to instruct HTerminal to switch between "cells". A cell is either text-based or HTML-based.
+HTerminal supports displaying HTML data in the terminal. This is accomplished using special escape sequences to instruct HTerminal to switch between "sections". A section is either text-based or HTML-based.
 
-When HTerminal receives any output from the terminal, it will append it to the bottommost text-based cell, creating a new one at the end if the last one is an HTML-based cell.
+When HTerminal receives any output from the terminal, it will append it to the bottommost text-based section, creating a new one at the end if the last one is an HTML-based section.
 
 The grammar for HTML escape codes follows:
 
@@ -113,9 +113,10 @@ osc = "\x1b]"
 terminator = "\x07" | "\x1b\\"
 csi = "\x1b["
 
-command = insert-html | replace-html
+command = insert-html | replace-html | replace-fixed-html
 insert-html = "0;" document
-replace-html = "1;" id ";" document
+replace-html = "1;" document
+replace-fixed-html = "2;" id ";" document
 ```
 
 A description of the effect of the commands follows:
@@ -126,12 +127,15 @@ Send version information. HTerminal will respond with CSI "HT " followed by the 
 
 insert-html
 -----------
-Create a new HTML-based cell at the end and fill it with the HTML document.
+Create a new HTML-based section at the end and fill it with the HTML document.
 
 replace-html
 ------------
-Replace the contents of the cell identified by id with the HTML document.
+If the bottommost section is HTML-based, replace its contents with the HTML document. Otherwise, behaves identically to insert-html. If the document is empty, remove the section (allowing you to continue writing to the previous text-based section).
 
+replace-fixed-html
+------------------
+Replace the contents of the fixed section named id with the HTML document.
 
 Troubleshooting
 ===============

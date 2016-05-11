@@ -75,7 +75,9 @@ export default class TerminalDriver extends EventEmitter {
     } else if (command == 'insert-html') {
       this.htmlInsertNewSection(arguments[1]);
     } else if (command == 'replace-html') {
-      this.htmlReplaceSection(arguments[1], arguments[2]);
+      this.htmlReplaceSection(arguments[1]);
+    } else if (command == 'replace-fixed-html') {
+      this.htmlReplaceFixedSection(arguments[1], arguments[2]);
     } else if (command == 'set-keypad-mode') {
       this.keypadMode = arguments[1];
     } else if (TerminalDriver.passAlongCommands.indexOf(command) != -1) {
@@ -119,11 +121,27 @@ export default class TerminalDriver extends EventEmitter {
     this.emit('output');
   }
 
-  htmlReplaceSection(id, html) {
-    if (this.fixedSections[id]) {
-      this.fixedSections[id] = { type: "html", content: html };
+  htmlReplaceSection(html) {
+    this.prepareForHTML();
+    if (this.sections[this.sections.length - 1].type === "html") {
+      // Replace the bottom section
+      if (html.length > 0) {
+        this.sections[this.sections.length - 1] = { type: "html", id: id, content: html };
+      } else {
+        this.sections.pop();
+      }
     } else {
-      // Not implemented
+      // Insert a new unnamed HTML section
+      if (html.length > 0) {
+        this.htmlInsertNewSection(null, html);
+      }
+    }
+    this.emit('output');
+  }
+
+  htmlReplaceFixedSection(id, html) {
+    if (this.fixedSections[id]) {
+      this.fixedSections[id] = { type: "html", id: id, content: html };
     }
     this.emit('output');
   }

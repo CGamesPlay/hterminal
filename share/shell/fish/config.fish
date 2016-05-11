@@ -15,7 +15,7 @@ function __htfish_init
 
     set -l pwd_link '<a href="cmd://open%20.">'(prompt_pwd)'</a>'
 
-    htfish_printf -r hterminal-status '<strong>%s</strong>@<strong>%s</strong> <strong>%s</strong> <strong>%s</strong>%s' \
+    htfish_printf -f hterminal-status '<strong>%s</strong>@<strong>%s</strong> <strong>%s</strong> <strong>%s</strong>%s' \
       $USER \
       $htfish_prompt_hostname \
       (date "+%x %I:%M %p") \

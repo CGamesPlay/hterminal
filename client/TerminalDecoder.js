@@ -302,12 +302,14 @@ TerminalDecoder.prototype = {
     if (opcode == '0') {
       cb('insert-html', command.slice(dataStart));
     } else if (opcode == '1') {
+      cb('replace-html', command.slice(dataStart));
+    } else if (opcode == '2') {
       var idSeparator = command.indexOf(';', dataStart);
       if (idSeparator == -1) {
         // Invalid
         cb('osc', 1866, command);
       } else {
-        cb('replace-html', command.slice(dataStart, idSeparator), command.slice(idSeparator + 1));
+        cb('replace-fixed-html', command.slice(dataStart, idSeparator), command.slice(idSeparator + 1));
       }
     } else {
       cb('osc', 1866, command);
