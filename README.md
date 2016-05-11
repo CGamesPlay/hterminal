@@ -77,13 +77,14 @@ The easiest way to try HTerminal is to use a prebuilt binary. HTerminal is not r
 1. [Download HTerminal](https://www.dropbox.com/s/cvq559t1ala32y8/HTerminal.zip?dl=0) and extract it to `~/Applications/`.
 2. [Download and install Fish](https://fishshell.com) if you don't already use it. HTerminal supports all shells, but Fish has an out-of-the-box configuration already made.
 3. Add the following to `~/.config/fish/init.fish`, or some other initialization file for Fish.
-   ```fish
-   # Load hterminal shell integration
-   if [ ! -z $HTERMINAL_ROOT ]
-     source $HTERMINAL_ROOT/share/shell/fish/init.fish
-   end
-   ```
 4. Launch HTerminal and type `ls`.
+
+```fish
+# Load hterminal shell integration
+if [ ! -z $HTERMINAL_ROOT ]
+  source $HTERMINAL_ROOT/share/shell/fish/init.fish
+end
+```
 
 **Developer installation**
 
