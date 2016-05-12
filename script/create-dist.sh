@@ -18,4 +18,5 @@ rm -rf ../hterminal-darwin-x64/
   --platform=darwin --arch=x64 \
   --app-bundle-id=com.cgamesplay.hterminal \
   --app-category-type=app-category-type=public.app-category.developer-tools \
+  --version 0.37.9 \
   --overwrite --prune --out=..
