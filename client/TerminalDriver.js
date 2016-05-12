@@ -267,7 +267,7 @@ export class Group extends EventEmitter {
     } else {
       // Insert a new unnamed HTML section
       if (html.length > 0) {
-        this.htmlInsertNewSection(null, html);
+        this.htmlInsertNewSection(html);
       }
     }
     this.emit('update');
