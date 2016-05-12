@@ -7,7 +7,7 @@ wrappers=$(dirname $0)
 export PATH=${PATH[@]/$wrappers}
 
 # Silently bypass if not hterminal
-if ! ishterminal; then
+if ! $wrappers/ishterminal; then
   exec ls "$@"
 fi
 
