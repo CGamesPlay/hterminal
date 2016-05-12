@@ -1,0 +1,99 @@
+#!/bin/bash
+
+set -e
+
+# Remove wrappers from PATH to enable calling the real command
+wrappers=$(dirname $0)
+export PATH=${PATH[@]/$wrappers}
+
+[ -t 1 ] || exec git "$@"
+
+OSC=$(echo -en "\x1b]")
+COMMAND_END=$(echo -en "\x07")
+INSERT_HTML="${OSC}1866;0;"
+
+htgit_status() {
+  IFS=$'\n'
+  lines=($(git status "$@" -s -b))
+  unset IFS
+  branch="On branch master. Your branch is ahead of origin/master by 2 commits"
+  branch="On branch master. Your branch is up-to-date with origin/master"
+  # ## asdf...master [ahead 1, behind 1]
+  # Your branch and 'master' have diverged, and have 1 and 1 different commit each, respectively.
+  if [[ ${#lines[@]} == 1 ]]; then
+    echo -n $INSERT_HTML"No changes, everything up to date!"$COMMAND_END
+  else
+    for file in "${lines[@]:1}"; do
+      case ${file:0:1} in
+        "M")
+          staged="$staged<li>modified: ${file:3} (git reset HEAD)</li> "
+          ;;
+        "A")
+          staged="$staged<li>added: ${file:3} (git reset HEAD)</li> "
+          ;;
+        "D")
+          staged="$staged<li>deleted: ${file:3} (git reset HEAD)</li> "
+          ;;
+        "R")
+          staged="$staged<li>renamed: ${file:3} (git reset HEAD)</li> "
+          ;;
+        "C")
+          staged="$staged<li>copied: ${file:3} (git reset HEAD)</li> "
+          ;;
+      esac
+    done
+    if [[ $staged != "" ]]; then
+      staged="<strong>Changes to be committed:</strong><ul>$staged</ul>"
+    fi
+    for file in "${lines[@]:1}"; do
+      case ${file:1:1} in
+        "M")
+          unstaged="$unstaged<li>modified: ${file:3} (git add / git checkout --)</li>"
+          ;;
+        "D")
+          unstaged="$unstaged<li>deleted: ${file:3} (git add / git checkout --)</li>"
+          ;;
+      esac
+    done
+    if [[ $unstaged != "" ]]; then
+      unstaged="<strong>Changes not staged for commit:</strong><ul>$unstaged</ul>"
+    fi
+    for file in "${lines[@]:1}"; do
+      case ${file:0:2} in
+        "??")
+          untracked="$untracked<li>${file:3} (git add)</li>"
+          ;;
+        "!!")
+          untracked="$untracked<li>ignored: ${file:3}</li>"
+          ;;
+      esac
+    done
+    if [[ $untracked != "" ]]; then
+      untracked="<strong>Untracked files:</strong><ul>$untracked</ul>"
+    fi
+    echo -n $INSERT_HTML $staged $unstaged $untracked $COMMAND_END
+  fi
+}
+
+original_command=$1
+shift
+command=$original_command
+for phase in literal alias; do
+  case $command in
+    "status")
+      htgit_status "$@"
+      exit $?
+      ;;
+    *)
+      if [[ $phase == "literal" ]]; then
+        # If this command is an alias, repeat with the resolved value.
+        # Otherwise, execute directly.
+        command=$(git config alias."$command") ||
+          exec git $original_command "$@"
+      fi
+      ;;
+  esac
+done
+
+# Literal and alias both failed, pass to git
+exec git $original_command "$@"

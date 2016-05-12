@@ -5,17 +5,18 @@ set -e
 INSERT_HTML=$(echo -en "\x1b]1866;0;")
 COMMAND_END=$(echo -en "\x07")
 
-# Find the next cat in PATH search order
-real_cat=$(which -a cat | grep -A1 "$0" | tail -1)
+# Remove wrappers from PATH to enable calling the real command
+wrappers=$(dirname $0)
+export PATH=${PATH[@]/$wrappers}
 
 # Silently bypass if not hterminal
 if ! ishterminal; then
-  exec $real_cat "$@"
+  exec cat "$@"
 fi
 
 # Bypass if any switches are passed
 for i in "$@"; do
-  [[ ${i:0:1} == - ]] && exec $real_cat "$@"
+  [[ ${i:0:1} == - ]] && exec cat "$@"
 done
 
 for i in "$@"; do
@@ -25,7 +26,7 @@ for i in "$@"; do
     base64 "$i"
     echo -n '" />'$COMMAND_END
   elif [[ ! -f "$i" || $mime == "text/"* ]]; then
-    $real_cat "$i"
+    cat "$i"
   else
     echo "proxy icon; $mime"
   fi
