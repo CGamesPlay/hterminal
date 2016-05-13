@@ -22,7 +22,13 @@ export default class BottomScroller extends React.Component {
         contents = this.refs.contents,
         spacerHeight = Math.max(0, container.clientHeight - contents.scrollHeight);
     this.refs.spacer.style.height = spacerHeight + "px";
-    if (this.isScrolledToBottom) {
+
+    // When contents are removed from the BottomScroller it might cause us to be
+    // scrolled to the bottom as a result, so we need to check the old value in
+    // addition to the new one in order to decide whether or not to scroll.
+    var wasScrolledToBottom = this.isScrolledToBottom;
+    this.handleScroll();
+    if (wasScrolledToBottom || this.isScrolledToBottom) {
       this.scrollToBottom();
     }
   }
