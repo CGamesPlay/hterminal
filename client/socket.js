@@ -54,7 +54,7 @@ function render() {
 render();
 if (module.hot) {
   module.hot.accept("./TerminalDriver", function() {
-    var NewDriver = require('./TerminalDriver');
+    var NewDriver = require('./TerminalDriver')["default"];
 
     socket.removeAllListeners('output');
     socket.removeAllListeners('exit');

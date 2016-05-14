@@ -68,7 +68,7 @@ function render() {
 render();
 if (module.hot) {
   module.hot.accept("./TerminalDriver", function() {
-    var NewDriver = require('./TerminalDriver');
+    var NewDriver = require('./TerminalDriver')["default"];
 
     ipcRenderer.removeAllListeners('output');
     ipcRenderer.removeAllListeners('exit');
