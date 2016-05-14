@@ -109,7 +109,6 @@ export default class TerminalDriver extends EventEmitter {
 
   applyPendingGroup(group) {
     if (this.pendingGroup) {
-      this.pendingGroup.on('update', this.emit.bind(this, 'update'));
       this.groups.push(this.pendingGroup);
       this.emit('update');
       this.pendingGroup = null;

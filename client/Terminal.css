@@ -38,10 +38,6 @@ html, body, #react-root {
   flex-direction: column;
 }
 
-.terminal-content {
-  box-sizing: border-box;
-}
-
 .status-bar {
   flex-grow: 0;
   background-color: var(--color-base2);

@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import debounce from './util/debounce';
 
 export default class BottomScroller extends React.Component {
@@ -7,20 +8,26 @@ export default class BottomScroller extends React.Component {
     this.isScrolledToBottom = true;
     this.delayUpdate = debounce(this.delayUpdate.bind(this), 10);
     this.handleScroll = debounce(this.handleScroll.bind(this), 250);
+    this.handleDOMMutation = this.handleDOMMutation.bind(this);
+    this.domMutationObserver = new MutationObserver(this.handleDOMMutation);
   }
 
   componentDidMount() {
     window.addEventListener('resize', this.delayUpdate);
+
+    let config = { attributes: true, childList: true, characterData: true, subtree: true };
+    this.domMutationObserver.observe(ReactDOM.findDOMNode(this), config);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.delayUpdate);
+    this.domMutationObserver.disconnect();
   }
 
   componentDidUpdate() {
     let container = this.refs.container,
         contents = this.refs.contents,
-        spacerHeight = Math.max(0, container.clientHeight - contents.scrollHeight);
+        spacerHeight = Math.max(0, container.clientHeight - contents.clientHeight);
     this.refs.spacer.style.height = spacerHeight + "px";
 
     // When contents are removed from the BottomScroller it might cause us to be
@@ -37,8 +44,6 @@ export default class BottomScroller extends React.Component {
     var { style, ...other } = this.props;
 
     style = Object.assign({
-      width: "100%",
-      height: "100%",
       overflowX: "hidden",
       overflowY: "scroll",
     }, style);
@@ -54,13 +59,17 @@ export default class BottomScroller extends React.Component {
   }
 
   delayUpdate() {
-    this.forceUpdate();
+    this.componentDidUpdate();
   }
 
   handleScroll() {
     // You are "at the bottom" if currently scrolled within epsilon of the bottom.
     let epsilon = 10;
     this.isScrolledToBottom = this.refs.container.scrollTop + this.refs.container.clientHeight + epsilon >= this.refs.container.scrollHeight;
+  }
+
+  handleDOMMutation(mutations) {
+    this.componentDidUpdate();
   }
 
   scrollToBottom() {

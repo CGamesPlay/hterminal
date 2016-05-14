@@ -49,10 +49,6 @@ export default class Terminal extends React.Component {
     driver.removeListener('exit', this.handleExit);
   }
 
-  componentDidUpdate() {
-    this.calculateWindowSize();
-  }
-
   render() {
     let groups = this.props.driver.groups.map((r, i) =>
       <SectionGroup
@@ -79,7 +75,8 @@ export default class Terminal extends React.Component {
         <Section className="status-bar"
           style={{ padding: this.props.minimumPadding }}
           section={section}
-          onExecute={this.handleExecute.bind(this)} />
+          onExecute={this.handleExecute.bind(this)}
+          onUpdate={this.calculateWindowSize.bind(this)} />
       );
     } else {
       return null;
@@ -213,6 +210,12 @@ export class SectionGroup extends React.Component {
 export class Section extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return this.props.section !== nextProps.section || !this.props.readOnly;
+  }
+
+  componentDidUpdate() {
+    if (this.props.onUpdate) {
+      this.props.onUpdate();
+    }
   }
 
   render() {
