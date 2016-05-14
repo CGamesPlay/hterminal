@@ -92,7 +92,7 @@ export default class VT100Section {
 
   // Erase all characters before the cursor and/or after the cursor.
   eraseDisplay(above, below) {
-    if (below && (above || this.x == 0 && this.y == 0)) {
+    if (below && (above || this.x == 0 && this.y == this._screenTop())) {
       // Erasing the entire screen, so just allocate enough lines to make a new
       // screenful and adjust Y.
       var screenY = this.y - this._screenTop();
