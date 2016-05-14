@@ -53,6 +53,24 @@ html, body, #react-root {
 
 .group {
   margin-top: 1em;
+  position: relative;
+}
+
+.status-error {
+  transform: translate3d(0, 0, 0);
+}
+
+.status-error::before {
+  content: " ";
+  width: calc(100% + 40px);
+  margin: 0 -20px;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--color-red);
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .group:last-child .text-section:last-child .caret {

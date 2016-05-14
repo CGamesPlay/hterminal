@@ -190,15 +190,22 @@ export class SectionGroup extends React.Component {
   }
 
   render() {
-    let sections = this.props.group.sections.map((s, i) =>
+    let group = this.props.group;
+    let sections = group.sections.map((s, i) =>
       <Section
         key={i}
         section={s}
         readOnly={this.props.readOnly || i != this.props.group.sections.length - 1}
         onExecute={this.props.onExecute} />
     );
+    let className = classnames("group", {
+      "status-success": group.isSuccess(),
+      "status-error": group.isFinished() && !group.isSuccess(),
+      "status-running": group.isRunning(),
+      "status-waiting-for-command": group.isPrompt(),
+    });
     return (
-      <div className="group">{sections}</div>
+      <div className={className}>{sections}</div>
     );
   }
 }

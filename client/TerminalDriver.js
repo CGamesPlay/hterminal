@@ -137,11 +137,23 @@ export class Group extends EventEmitter {
   }
 
   hasOutput() {
+    return this.state == "running" || this.state == "finished";
+  }
+
+  isPrompt() {
+    return this.state == "prompt";
+  }
+
+  isRunning() {
     return this.state == "running";
   }
 
   isFinished() {
     return this.state == "finished";
+  }
+
+  isSuccess() {
+    return this.status == 0;
   }
 
   markPrompt() {
@@ -155,6 +167,7 @@ export class Group extends EventEmitter {
 
   markFinished(status) {
     this.state = "finished";
+    this.status = status;
     this.cleanupTextSection();
   }
 
