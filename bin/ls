@@ -16,9 +16,14 @@ for i in "$@"; do
   [[ ${i:0:1} == - ]] && exec ls "$@"
 done
 
-$wrappers/hterminal begin
 in_list=0
-ls "$@" | $wrappers/hterminal escape | while read file; do
+IFS=$'\n'
+lines=($(ls -F "$@"))
+unset IFS
+if [[ ${#lines[@]} -gt 0 ]]; then
+  $wrappers/hterminal begin
+fi
+for file in "${lines[@]:1}"; do
   if [[ -z $file ]]; then
     echo -n "</multi-column-list>"
     in_list=0
@@ -37,8 +42,12 @@ ls "$@" | $wrappers/hterminal escape | while read file; do
       file=${file%?}
       mime="mime=\"application/x-directory\""
     fi
-    echo -n "<file-pill ${mime}>$file</file-pill>"
+    echo -n "<file-pill ${mime}>"
+    echo -n $file | $wrappers/hterminal escape
+    echo -n "</file-pill>"
   fi
 done
-echo -n "</multi-column-list>"
-$wrappers/hterminal end
+if [[ ${#lines[@]} -gt 0 ]]; then
+  echo -n "</multi-column-list>"
+  $wrappers/hterminal end
+fi
