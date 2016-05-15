@@ -44,8 +44,10 @@ All HTerminal features work over SSH, because HTerminal does not need special so
 
 **General REPL interface**
 
-- Method to show command, output, exit status, run time, and a throbber.
-- Method to save alternate screen contents and review it.
+- Easily copy command output to the clipboard.
+- Hide the output from an individual command.
+- *Planned* - Review what the alternate screen was showing previously.
+- *Planned* - Show run time and throbber.
 
 **File management**
 

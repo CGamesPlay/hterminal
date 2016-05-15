@@ -28,7 +28,8 @@ fake_command() {
   echo -n -e "\x1b]133;A\a"
   echo "$" "$@"
   echo -n -e "\x1b]133;C;\a"
-  "$@"
+  status=0
+  "$@" || status=$?
   echo -n -e "\x1b]133;D;$status\a"
   echo -n -e "\x1b]133;A\a"
   echo -n "$ "
@@ -50,7 +51,10 @@ set_title() {
 set_title "fish $(pwd)"
 
 clear
-fake_command git st
+cd $root/../..
 fake_command cat /Library/Developer/CommandLineTools/usr/share/gitweb/static/git-logo.png
+fake_command git st
 fake_command ls
+fake_command cd hterminal
+fake_command git st
 screenshot share/res/typical.png
