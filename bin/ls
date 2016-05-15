@@ -23,7 +23,7 @@ unset IFS
 if [[ ${#lines[@]} -gt 0 ]]; then
   $wrappers/hterminal begin
 fi
-for file in "${lines[@]:1}"; do
+for file in "${lines[@]}"; do
   if [[ -z $file ]]; then
     echo -n "</multi-column-list>"
     in_list=0
