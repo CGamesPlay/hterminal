@@ -14,7 +14,6 @@ var baseConfig = {
   },
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.NoErrorsPlugin(),
     new HtmlWebpackPlugin({ title: "HTerminal" }),
     new webpack.EnvironmentPlugin([ "NODE_ENV" ]),
   ],
@@ -29,6 +28,9 @@ var baseConfig = {
     }, {
       test: /\.css$/,
       loaders: [ 'style-loader', 'css-loader' ],
+    }, {
+      test: /\.(ttf|eot|svg|woff|woff2)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+      loader: "file-loader"
     }]
   }
 };

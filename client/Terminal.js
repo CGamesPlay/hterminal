@@ -1,11 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
 import BottomScroller from './BottomScroller';
-import classnames from 'classnames';
 import debounce from './util/debounce';
-import { parseHTML } from './HTMLParser';
 import { inputFromEvent } from './KeyEvent';
+import { SectionGroup, Section } from './SectionGroup';
 
 import './Terminal.css';
 
@@ -153,104 +151,4 @@ export default class Terminal extends React.Component {
 Terminal.defaultProps = {
   // Default padding around each edge
   minimumPadding: 3,
-}
-
-export class SectionGroup extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
-    this.forceUpdate = this.forceUpdate.bind(this);
-  }
-
-  componentDidMount() {
-    this.addListenersToGroup(this.props.group);
-  }
-
-  componentWillUnmount() {
-    this.removeListenersFromGroup(this.props.group);
-  }
-
-  componentWillReceiveProps(newProps) {
-    if (newProps.group !== this.props.group) {
-      this.removeListenersFromGroup(this.props.group);
-      this.addListenersToGroup(newProps.group);
-    }
-  }
-
-  addListenersToGroup(group) {
-    group.on('update', this.forceUpdate);
-  }
-
-  removeListenersFromGroup(group) {
-    group.removeListener('update', this.forceUpdate);
-  }
-
-  render() {
-    let group = this.props.group;
-    let sections = group.sections.map((s, i) =>
-      <Section
-        key={i}
-        section={s}
-        readOnly={this.props.readOnly || i != this.props.group.sections.length - 1}
-        onExecute={this.props.onExecute} />
-    );
-    let className = classnames("group", {
-      "status-success": group.isSuccess(),
-      "status-error": group.isFinished() && !group.isSuccess(),
-      "status-running": group.isRunning(),
-      "status-waiting-for-command": group.isPrompt(),
-    });
-    return (
-      <div className={className}>{sections}</div>
-    );
-  }
-}
-
-export class Section extends React.Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.section !== nextProps.section || !this.props.readOnly;
-  }
-
-  componentDidUpdate() {
-    if (this.props.onUpdate) {
-      this.props.onUpdate();
-    }
-  }
-
-  render() {
-    let { className, section, readOnly, ...other } = this.props;
-
-    if (section.type == "html") {
-      let payload = parseHTML(section.content);
-      return (
-        <div className={classnames(className, "html-section", section.className)}
-          onClick={this.handleClick.bind(this)}
-          {...other}>
-          {payload}
-        </div>
-      );
-    } else {
-      var payload = section.toHTML();
-      return (
-        <div className={classnames(className, "text-section", section.className)}
-          dangerouslySetInnerHTML={payload}
-          onClick={this.handleClick.bind(this)}
-          {...other} />
-      );
-    }
-  }
-
-  handleClick(e) {
-    if (e.target.tagName == "A") {
-      if (e.target.href.startsWith("cmd://")) {
-        // This link is a command to run
-        e.preventDefault();
-        let command = unescape(e.target.href.slice(6));
-        if (this.props.onExecute) {
-          this.props.onExecute(command);
-        }
-      }
-    }
-  }
 }

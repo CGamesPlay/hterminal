@@ -38,57 +38,17 @@ html, body, #react-root {
   flex-direction: column;
 }
 
+.terminal-content > div {
+  /* Set the contents area of the BottomScroller to be positioned relative */
+  position: relative;
+}
+
 .status-bar {
   flex-grow: 0;
   background-color: var(--color-base2);
 }
 
-.text-section {
-  white-space: pre;
-}
-
-.group {
-  margin-top: 1em;
-  position: relative;
-}
-
-.status-error {
-  transform: translate3d(0, 0, 0);
-}
-
-.status-error::before {
-  content: " ";
-  width: calc(100% + 40px);
-  margin: 0 -20px;
-  position: absolute;
-  top: 0;
-  height: 100%;
-  background: var(--color-red);
-  opacity: 0.25;
-  pointer-events: none;
-  z-index: -1;
-}
-
 .group:last-child .text-section:last-child .caret {
   background-color: var(--color-base00);
   color: var(--color-base3);
-}
-
-.group .repl-prompt {
-  background-color: var(--color-base2);
-  margin: 0 -20px;
-  padding: 0 20px;
-}
-
-.html-section {
-  font-family: sans-serif;
-}
-
-a {
-  color: var(--color-blue);
-}
-
-.html-section iframe {
-  width: 100%;
-  border: none;
 }

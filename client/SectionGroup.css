@@ -1,0 +1,87 @@
+.group {
+  padding: 0 20px;
+  margin: calc(1em) -20px 0;
+  overflow: hidden;
+}
+
+.group-collapsed {
+  height: 1em;
+  box-shadow: 0 3px 3px rgba(128, 128, 128, 0.3);
+}
+
+.group-controls {
+  pointer-events: none;
+}
+
+.group-controls-trigger {
+  padding: 5px;
+  margin: -5px;
+  pointer-events: auto;
+  transition: opacity 0.3s;
+  position: absolute;
+  right: 10px;
+}
+
+.group-controls:hover .group-controls-trigger {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.group-controls-actions {
+  opacity: 0;
+  transition: opacity 0.3s;
+  position: absolute;
+  right: 10px;
+  white-space: nowrap;
+}
+
+.group-controls-actions button {
+  padding: 0 2px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  margin: 0 3px;
+}
+
+.group-controls-actions button:last-child {
+  margin-right: 0;
+}
+
+.group-controls:hover .group-controls-actions {
+  opacity: 1;
+  padding: 10px;
+  margin: -10px;
+  pointer-events: auto;
+}
+
+.status-error {
+  box-shadow: inset 16px 0px 0px 2px;
+  padding-bottom: 2px;
+  color: var(--color-red);
+}
+
+.text-section {
+  white-space: pre;
+}
+
+.html-section {
+  font-family: sans-serif;
+}
+
+.group .repl-prompt {
+  background-color: var(--color-base2);
+  margin: 0 -20px;
+  padding: 0 20px;
+}
+
+a {
+  color: var(--color-blue);
+}
+
+.html-section iframe {
+  width: 100%;
+  border: none;
+}
+
+@import "font-awesome/css/font-awesome.css";
