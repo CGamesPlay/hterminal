@@ -1,5 +1,14 @@
 import React from 'react';
+import classnames from 'classnames';
 import CSS from './ComponentLibrary.css';
+
+export class Icon extends React.Component {
+  render() {
+    return (
+      <i className={"fa fa-" + this.props.id} />
+    );
+  }
+}
 
 export class MultiColumnList extends React.Component {
   render() {
@@ -28,6 +37,7 @@ export class FramedImage extends React.Component {
 }
 
 export default {
+  'icon': Icon,
   'multi-column-list': MultiColumnList,
   'file-pill': FilePill,
   'framed-image': FramedImage,

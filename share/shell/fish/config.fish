@@ -8,17 +8,16 @@ function __htfish_init
       set -g htfish_prompt_hostname (hostname|cut -d . -f 1)
     end
 
-    set -l git_info (__fish_git_prompt)
+    set -l git_info (__fish_git_prompt "%s")
     if not test -z $git_info
-      set -l git_info "<strong>"$git_info"</strong>"
+      set git_info '<strong><icon id="code-fork" /> '$git_info'</strong>'
     end
 
     set -l pwd_link '<a href="cmd://open%20.">'(prompt_pwd)'</a>'
 
-    htfish_printf -f hterminal-status '<strong>%s</strong>@<strong>%s</strong> <strong>%s</strong> <strong>%s</strong>%s' \
+    htfish_printf -f hterminal-status '<strong><icon id="user" /> %s</strong> <strong><icon id="television" /> %s</strong> <strong><icon id="folder-o" /> %s</strong> %s' \
       $USER \
       $htfish_prompt_hostname \
-      (date "+%x %I:%M %p") \
       $pwd_link \
       $git_info
   end
