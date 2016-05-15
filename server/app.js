@@ -25,7 +25,11 @@ function getRoot(cb) {
 
 function createWindow() {
   getRoot(function(root) {
-    var prefs = { session: OfflineSession([ root ]) };
+    var prefs = {
+      nodeIntegration: false,
+      preload: path.resolve(__dirname, "preload.js"),
+      session: OfflineSession([ root ])
+    };
     var window = new BrowserWindow({ width: 800, height: 600, webPreferences: prefs });
     window.loadURL(root + "index.html");
     window.webContents.once('did-finish-load', function() {
