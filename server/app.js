@@ -1,7 +1,9 @@
+var path = require('path');
 var app = require('electron').app;
 var BrowserWindow = require('electron').BrowserWindow;
 var Menu = require('electron').Menu;
 var ElectronWindow = require('./ElectronWindow');
+var OfflineSession = require('./OfflineSession');
 
 var __root;
 function getRoot(cb) {
@@ -16,15 +18,16 @@ function getRoot(cb) {
       cb(__root);
     });
   } else {
-    __root = "file://" + __dirname + "/../client/index.html";
+    __root = "file://" + path.resolve(__dirname, "../client") + "/";
     cb(__root);
   }
 }
 
 function createWindow() {
   getRoot(function(root) {
-    var window = new BrowserWindow({ width: 800, height: 600 });
-    window.loadURL(root);
+    var prefs = { session: OfflineSession([ root ]) };
+    var window = new BrowserWindow({ width: 800, height: 600, webPreferences: prefs });
+    window.loadURL(root + "index.html");
     window.webContents.once('did-finish-load', function() {
       new ElectronWindow(window.webContents);
     });
