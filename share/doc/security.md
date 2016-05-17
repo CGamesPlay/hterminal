@@ -1,7 +1,5 @@
 # Security in HTerminal
 
-:warning: This document is written in the present tense, but many of these features are not fully implemented in early versions of HTerminal.
-
 There are several malicious reasons to compromise the terminal.
 
 1. Run some command in an unintended context, e.g. inject an additional command into a call to `sudo`.
