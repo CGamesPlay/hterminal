@@ -14,8 +14,21 @@ export function parseHTML(data) {
   };
   parser.onclosetag = function() {
     let node = stack.pop();
-    let name = ComponentLibrary[node.name] || node.name;
-    let component = React.createElement.apply(React, [ name, node.attributes ].concat(node.children));
+    let type = ComponentLibrary[node.name] || ComponentLibrary['span'];
+    let attributes = Object.keys(node.attributes).reduce((memo, attr) => {
+      let propType = type.propTypes && type.propTypes[attr];
+      if (propType && propType(node.attributes, attr) === null) {
+        memo[attr] = node.attributes[attr];
+      }
+      return memo;
+    }, {});
+
+    if (typeof type === 'object') {
+      // Convert from basic tag config object to string tag names.
+      type = type.name;
+    }
+
+    let component = React.createElement.apply(React, [ type, attributes ].concat(node.children));
     if (stack.length > 0) {
       stack[stack.length - 1].children.push(component);
     } else {

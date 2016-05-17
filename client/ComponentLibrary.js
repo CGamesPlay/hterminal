@@ -2,6 +2,23 @@ import React from 'react';
 import classnames from 'classnames';
 import CSS from './ComponentLibrary.css';
 
+function basicTag(name, attributes) {
+  var tag = { name: name };
+  if (attributes) {
+    tag.propTypes = attributes;
+  }
+  return tag;
+}
+
+var allowedTags = [
+  'div', 'span', 'strong', 'b', 'i', 'em', 'u', 'strike',
+  'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'table', 'thead', 'tfoot', 'tbody', 'tr', 'th', 'td', 'caption',
+  'ul', 'ol', 'li',
+].reduce((memo, tag) => { memo[tag] = basicTag(tag); return memo; }, {});
+allowedTags['a'] = basicTag('a', { href: React.PropTypes.string });
+allowedTags['img'] = basicTag('img', { src: React.PropTypes.string });
+
 export class Icon extends React.Component {
   render() {
     return (
@@ -9,6 +26,10 @@ export class Icon extends React.Component {
     );
   }
 }
+
+Icon.propTypes = {
+  id: React.PropTypes.string.isRequired,
+};
 
 export class MultiColumnList extends React.Component {
   render() {
@@ -36,9 +57,13 @@ export class FramedImage extends React.Component {
   }
 }
 
-export default {
+FramedImage.propTypes = {
+  src: React.PropTypes.string
+};
+
+export default Object.assign({}, allowedTags, {
   'icon': Icon,
   'multi-column-list': MultiColumnList,
   'file-pill': FilePill,
   'framed-image': FramedImage,
-};
+});
