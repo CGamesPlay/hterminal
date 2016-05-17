@@ -7,7 +7,7 @@ export default class BottomScroller extends React.Component {
     super(props);
     this.isScrolledToBottom = true;
     this.delayUpdate = debounce(this.delayUpdate.bind(this), 10);
-    this.handleScroll = debounce(this.handleScroll.bind(this), 250);
+    this.handleScroll = debounce(this.handleScrollImmediate.bind(this), 250);
     this.handleDOMMutation = this.handleDOMMutation.bind(this);
     this.domMutationObserver = new MutationObserver(this.handleDOMMutation);
   }
@@ -34,7 +34,7 @@ export default class BottomScroller extends React.Component {
     // scrolled to the bottom as a result, so we need to check the old value in
     // addition to the new one in order to decide whether or not to scroll.
     var wasScrolledToBottom = this.isScrolledToBottom;
-    this.handleScroll();
+    this.handleScrollImmediate();
     if (wasScrolledToBottom || this.isScrolledToBottom) {
       this.scrollToBottom();
     }
@@ -62,7 +62,7 @@ export default class BottomScroller extends React.Component {
     this.componentDidUpdate();
   }
 
-  handleScroll() {
+  handleScrollImmediate() {
     // You are "at the bottom" if currently scrolled within epsilon of the bottom.
     let epsilon = 10;
     this.isScrolledToBottom = this.refs.container.scrollTop + this.refs.container.clientHeight + epsilon >= this.refs.container.scrollHeight;
