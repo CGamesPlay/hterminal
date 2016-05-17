@@ -19,7 +19,7 @@ HTerminal aims to be compatible with most existing terminal programs without any
 
 **Basic programs**
 
-All normal terminal programs programs like ps, top, kill, ls, cd, etc. are all fully supported by HTerminal. HTerminal primarily works by providing transparent wrappers around exisitng commands to give them enhanced functionality (which can be disabled if needed).
+All normal terminal programs programs like ps, top, kill, ls, cd, etc. are all fully supported by HTerminal. HTerminal primarily works by providing transparent wrappers around exisiting commands to give them enhanced functionality (which can be disabled if needed).
 
 - *Planned* - terminal styles like colors and bold are not currently implemented.
 
@@ -32,7 +32,6 @@ Programs like rvm and virtualenv work just fine in HTerminal, because HTerminal 
 Fish is the preferred shell of HTerminal and all features of fish are supported and improved upon.
 
 - *Planned* - Input interface utilizing all of the fish completions, but presented using a rich typeahead control.
-- *Planned* - Shell integration to highlight commands and provide information like error highlighting and run time.
 
 **Vim**
 

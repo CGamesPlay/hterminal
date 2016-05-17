@@ -269,17 +269,21 @@ export default class VT100Section {
   toHTML() {
     var html = this.lines.map((raw_line, y) => {
       var encoded = "";
-      if (this.y == y && this.x == raw_line.length) {
-        raw_line += "\u00a0";
-      }
-      for (var x = 0; x < raw_line.length; x++) {
-        if (this.y == y && this.x == x) {
-          encoded += "<span class=\"caret\">";
+      if (this.y == y) {
+        if (this.x == raw_line.length) {
+          encoded =
+            htmlspecialchars(raw_line) +
+            "<span class=\"caret\">\u00a0</span>";
+        } else {
+          encoded =
+            htmlspecialchars(raw_line.slice(0, this.x)) + // Before part
+            "<span class=\"caret\">" +
+            htmlspecialchars(raw_line[this.x]) + // Caret part
+            "</span>" +
+            htmlspecialchars(raw_line.slice(this.x + 1)); // After part
         }
-        encoded += htmlspecialchars(raw_line[x]);
-        if (this.y == y && this.x == x) {
-          encoded += "</span>";
-        }
+      } else {
+        encoded = htmlspecialchars(raw_line);
       }
       return encoded;
     }).join("\n");
