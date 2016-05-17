@@ -1,6 +1,7 @@
 var path = require('path');
 var app = require('electron').app;
 var BrowserWindow = require('electron').BrowserWindow;
+var dialog = require('electron').dialog;
 var Menu = require('electron').Menu;
 var ElectronWindow = require('./ElectronWindow');
 var OfflineSession = require('./OfflineSession');
@@ -38,6 +39,24 @@ function createWindow() {
   });
 }
 
+function handleQuit(itom, focusedWindow) {
+  if (BrowserWindow.getAllWindows().length > 0) {
+    var result = dialog.showMessageBox({
+      type: "question",
+      buttons: [ 'OK', 'Cancel' ],
+      defaultId: 0,
+      message: "Quit HTerminal?",
+      detail: "All sessions will be closed.",
+      cancelId: 1,
+    });
+    if (result == 0) {
+      app.quit();
+    }
+  } else {
+    app.quit();
+  }
+}
+
 function handleClear(item, focusedWindow) {
   var window = ElectronWindow.fromWebContents(focusedWindow.webContents);
   if (window) {
@@ -59,7 +78,7 @@ app.on('ready', function() {
         { label: 'Hide Others', accelerator: 'Command+Alt+H', role: 'hideothers' },
         { label: 'Show All', role: 'unhide' },
         { type: 'separator' },
-        { label: "Quit", accelerator: "Command+Q", click: () => { app.quit(); }},
+        { label: "Quit", accelerator: "Command+Q", click: handleQuit },
       ]
     }, {
       label: "Shell",
