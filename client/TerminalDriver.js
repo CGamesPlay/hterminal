@@ -188,14 +188,17 @@ export class Group extends EventEmitter {
     });
   }
 
-  handleCommand(command) {
+  handleCommand(command, a1, a2) {
     if (VT100Section.handledCommands[command]) {
       var section = this.getOrCreateVT100Section();
       var funcName = VT100Section.handledCommands[command];
       if (typeof funcName !== "string" || typeof section[funcName] !== 'function') {
         throw new Error("Internal error: invalid VT100Section.handledCommands value: " + command);
       }
-      section[funcName].apply(section, Array.prototype.slice.call(arguments, 1));
+      if (arguments.length > 3) {
+        throw new Error("Internal error: too many arguments");
+      }
+      section[funcName].call(section, a1, a2);
       this.emit('update');
       return true;
     } else if (command == 'use-alternate-screen') {
