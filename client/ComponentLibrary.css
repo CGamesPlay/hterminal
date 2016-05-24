@@ -14,11 +14,13 @@
 }
 
 .file-pill {
+  display: block;
   background: var(--color-blue);
   color: var(--color-base2);
   border-radius: 1em;
   padding: 3px 7px;
   text-overflow: ellipsis;
+  text-decoration: none;
   overflow:hidden;
 }
 

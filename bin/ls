@@ -7,9 +7,7 @@ wrappers=$(dirname $0)
 export PATH=${PATH[@]/$wrappers}
 
 # Silently bypass if not hterminal
-if ! $wrappers/ishterminal; then
-  exec ls "$@"
-fi
+#[ -t 1 ] || exec ls "$@"
 
 # Bypass if any switches are passed
 for i in "$@"; do
@@ -28,7 +26,9 @@ for file in "${lines[@]}"; do
     echo -n "</multi-column-list>"
     in_list=0
   elif [[ ${file: -1} == ":" ]]; then
-    echo -n "<strong>$file</strong>"
+    [[ $in_list == 1 ]] && echo -n "</multi-column-list>"
+    in_list=0
+    echo -n "<strong><icon id=\"folder\" /> $file</strong>"
   else
     [[ $in_list == 0 ]] && echo -n "<multi-column-list>"
     in_list=1
@@ -41,10 +41,13 @@ for file in "${lines[@]}"; do
     if [[ $indicator == "/" ]]; then
       file=${file%?}
       mime="mime=\"application/x-directory\""
+    elif [[ $indicator == "*" ]]; then
+      file=${file%?}
+      mime="mime=\"application/x-shellscript\""
     fi
-    echo -n "<file-pill ${mime}>"
+    echo -n "<file-pill ${mime} path=\""
     echo -n $file | $wrappers/hterminal escape
-    echo -n "</file-pill>"
+    echo -n "\" />"
   fi
 done
 if [[ ${#lines[@]} -gt 0 ]]; then
