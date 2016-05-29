@@ -38,6 +38,10 @@ html, body, #react-root {
   flex-direction: column;
 }
 
+.terminal-content {
+  flex-grow: 1;
+}
+
 .terminal-content > div {
   /* Set the contents area of the BottomScroller to be positioned relative */
   position: relative;

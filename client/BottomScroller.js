@@ -13,6 +13,7 @@ export default class BottomScroller extends React.Component {
   }
 
   componentDidMount() {
+    this.setSpacerHeight();
     window.addEventListener('resize', this.delayUpdate);
 
     let config = { attributes: true, childList: true, characterData: true, subtree: true };
@@ -25,10 +26,7 @@ export default class BottomScroller extends React.Component {
   }
 
   componentDidUpdate() {
-    let container = this.refs.container,
-        contents = this.refs.contents,
-        spacerHeight = Math.max(0, container.clientHeight - contents.clientHeight);
-    this.refs.spacer.style.height = spacerHeight + "px";
+    this.setSpacerHeight();
 
     // When contents are removed from the BottomScroller it might cause us to be
     // scrolled to the bottom as a result, so we need to check the old value in
@@ -56,6 +54,13 @@ export default class BottomScroller extends React.Component {
         </div>
       </div>
     );
+  }
+
+  setSpacerHeight() {
+    let container = this.refs.container,
+        contents = this.refs.contents,
+        spacerHeight = Math.max(0, container.clientHeight - contents.clientHeight);
+    this.refs.spacer.style.height = spacerHeight + "px";
   }
 
   delayUpdate() {
