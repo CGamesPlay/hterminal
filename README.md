@@ -92,11 +92,11 @@ end
 If you want to contribute to HTerminal, follow these steps:
 
 1. Clone the repository.
-2. `npm install` - If you get an error about electron, that's because electron `0.37.9` hasn't been released yet. You can change `package.json` to use `0.37.8`, but note that HTerminal will use 100% CPU in app mode (web mode will work fine).
-3. Use `npm run develop-app` or `npm run develop-web` to launch a live-reloading HTerminal in either app (Electron) mode or web mode.
-4. Use `./script/create-dist.sh` to create a standalone app in `HTerminal-darwin-x64`.
+2. `yarn`
+3. Use `yarn run develop` launch a live-reloading HTerminal.
+4. Use `yarn run package` to create a standalone app in `HTerminal-darwin-x64`.
 
-Note that `develop-app` still uses about 30% CPU; this seems to be caused by an incompatibility between webpack and electron. When you build a standalone app using `create-dist` the CPU usage for HTerminal is minimal.
+Note that `develop` still uses about 30% CPU; this seems to be caused by an incompatibility between webpack and electron. When you build a standalone app using `create-dist` the CPU usage for HTerminal is minimal.
 
 Troubleshooting
 ===============
@@ -111,6 +111,7 @@ Recommended reading
 - https://github.com/unconed/TermKit
 - http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 - http://www.asciitable.com/
+- http://vt100.net/emu/dec_ansi_parser
 
 Thoughts on completions
 =======================
@@ -122,21 +123,3 @@ In order to get full control of reading lines with fish, a script is used to rea
 - `eval`: `set -l` doesn't work and history isn't added.
 
 I could have htfish_read_command output an escape start before returning, and an escape terminator in the preexec hook. I could also have the fish prompt be completely empty. If the prompt contains DSR, input will have to be consumed in a preexec hook.
-
-CPU Usage in Electron
-=====================
-
-I compiled my own version of Electron in order to fix the CPU usage problem. The core of electron gets built normally, the `scripts/create-dist.py` is used to make a zip file.
-
-```bash
-cd ~/Projects/hterminal/electron
-./scripts/build.py
-./scripts/create-dist.py
-cp dist/electron-v0.37.8-darwin-x64.zip ~/.electron/
-cd ~/Projects/hterminal/hterminal
-./script/create-dist.sh
-```
-
-This shouldn't be needed for any version after 0.37.8, when the pull was accepted.
-
-Note that `develop-app` still uses about 30% CPU, this seems to be casued by an incompatibility between webpack and electron.
