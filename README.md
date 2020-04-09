@@ -6,6 +6,10 @@ HTerminal is a new kind of terminal program. It works with all your existing pro
 
 ![](share/res/typical.png)
 
+## Archived
+
+I haven't worked on this project in a long time. The main reason is that while I think this sort of interface makes things generally nicer, it's a huge amount of work for what ultimately boils down to a rather limited gain. If I was going to restart this project, I think the most important factor would be to decide exactly what shell commands benefit from rich interfaces and how they could be implemented.
+
 ## Features
 
 - Fully compatible with all existing terminal programs and shells. HTerminal enhances existing programs instead of replacing them.
